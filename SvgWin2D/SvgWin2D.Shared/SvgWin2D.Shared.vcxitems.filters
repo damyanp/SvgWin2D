@@ -7,5 +7,6 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)SvgRenderer.cpp" />
   </ItemGroup>
 </Project>

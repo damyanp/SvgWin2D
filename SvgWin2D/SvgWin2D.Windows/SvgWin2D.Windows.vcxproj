@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\..\packages\Win2D.0.0.22\build\native\Win2D.props" Condition="Exists('..\..\packages\Win2D.0.0.22\build\native\Win2D.props')" />
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|ARM">
       <Configuration>Debug</Configuration>
@@ -94,7 +95,7 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros">
-    <NuGetPackageImportStamp>b851a3ef</NuGetPackageImportStamp>
+    <NuGetPackageImportStamp>78f73e95</NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <GenerateManifest>false</GenerateManifest>
@@ -214,11 +215,14 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\..\packages\boost.1.58.0.0\build\native\boost.targets" Condition="Exists('..\..\packages\boost.1.58.0.0\build\native\boost.targets')" />
+    <Import Project="..\..\packages\Win2D.0.0.22\build\native\Win2D.targets" Condition="Exists('..\..\packages\Win2D.0.0.22\build\native\Win2D.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\..\packages\boost.1.58.0.0\build\native\boost.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\boost.1.58.0.0\build\native\boost.targets'))" />
+    <Error Condition="!Exists('..\..\packages\Win2D.0.0.22\build\native\Win2D.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Win2D.0.0.22\build\native\Win2D.props'))" />
+    <Error Condition="!Exists('..\..\packages\Win2D.0.0.22\build\native\Win2D.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Win2D.0.0.22\build\native\Win2D.targets'))" />
   </Target>
 </Project>
