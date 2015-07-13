@@ -4,3 +4,4 @@ ipch/
 packages/
 *.opensdf
 *.sdf
+*.suo
