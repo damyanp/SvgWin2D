@@ -1,0 +1,3 @@
+[submodule "svgpp"]
+	path = svgpp
+	url = https://github.com/svgpp/svgpp
