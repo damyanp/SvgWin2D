@@ -45,7 +45,10 @@ namespace Demo
         {
             var file = await Package.Current.InstalledLocation.GetFileAsync("FirstSVGTest.svg");
             var document = await XmlDocument.LoadFromFileAsync(file);
-            svgCommandList = SvgRenderer.Render(resourceCreator, document);
+
+            var svgElement = document.GetElementsByTagName("svg").First();
+
+            svgCommandList = SvgRenderer.Render(resourceCreator, svgElement);
         }
 
         private void OnDraw(CanvasControl sender, CanvasDrawEventArgs args)

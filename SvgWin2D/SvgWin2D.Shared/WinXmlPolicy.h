@@ -5,43 +5,82 @@
 namespace svgpp
 {
     using namespace Windows::Data::Xml::Dom;
+    using namespace Windows::Foundation::Collections;
+    
+    //
+    // This is required because SVG++ was creating arrays of IXmlNode^'s and
+    // these were being initialized to 0xCCCCCCCC rather than 0, resulting in an
+    // AV when attempting to assign the new value.  Wrapping in the SavedValue
+    // value type fixes this.
+    //
+    class SavedValue
+    {
+        IXmlNode^ m_node;
+
+    public:
+        SavedValue()
+        {}
+
+        SavedValue(IXmlNode^ node)
+            : m_node(node)
+        {}
+
+        Platform::String^ GetValue()
+        {
+            return dynamic_cast<Platform::String^>(m_node->NodeValue);
+        }
+    };
 
     class AttributeEnumerator
     {
+        IIterator<IXmlNode^>^ m_iterator;
+
     public:
         AttributeEnumerator(IXmlNode^ node)
         {            
-            throw E_UNEXPECTED;
+            auto attributes = node->Attributes;
+            m_iterator = attributes->First();
         }
 
         bool IsEnd() const
         {
-            throw E_UNEXPECTED;
+            return !m_iterator->HasCurrent;
         }
 
         void Advance()
         {
-            throw E_UNEXPECTED;
+            m_iterator->MoveNext();
         }
 
         detail::namespace_id GetNamespace() const
         {
-            throw E_UNEXPECTED;
+            auto namespaceString = dynamic_cast<Platform::String^>(m_iterator->Current->NamespaceUri);
+
+            if (namespaceString == nullptr)
+                return detail::namespace_id::svg;
+
+            boost::iterator_range<wchar_t const *> ns_uri = boost::as_literal(namespaceString->Data());
+
+            if (boost::range::equal(detail::xml_namespace_uri<wchar_t>(), ns_uri))
+                return detail::namespace_id::xml;
+            else if (boost::range::equal(detail::xlink_namespace_uri<wchar_t>(), ns_uri))
+                return detail::namespace_id::xlink;
+            return detail::namespace_id::other;            
         }
 
         Platform::String^ GetLocalName() const
         {
-            throw E_UNEXPECTED;
+            return safe_cast<Platform::String^>(m_iterator->Current->LocalName);
         }
 
         Platform::String^ GetValue() const
         {
-            throw E_UNEXPECTED;
+            return safe_cast<Platform::String^>(m_iterator->Current->NodeValue);
         }
 
         IXmlNode^ SaveValue() const
         {
-            throw E_UNEXPECTED;
+            return m_iterator->Current;
         }
     };
 
@@ -55,7 +94,7 @@ namespace svgpp
                 typedef boost::iterator_range<wchar_t const*> string_type;
                 typedef Platform::String^ attribute_name_type;
                 typedef Platform::String^ attribute_value_type;
-                typedef IXmlNode^ saved_value_type;
+                typedef SavedValue saved_value_type;
 
                 static bool is_end(AttributeEnumerator const& enumerator)
                 {
@@ -94,9 +133,14 @@ namespace svgpp
                     return enumerator.GetValue();
                 }
 
-                static IXmlNode^ save_value(AttributeEnumerator const& enumerator)
+                static SavedValue save_value(AttributeEnumerator const& enumerator)
                 {
-                    return enumerator.SaveValue();
+                    return SavedValue(enumerator.SaveValue());
+                }
+
+                static Platform::String^ get_value(SavedValue value)
+                {
+                    return value.GetValue();
                 }
             };
 
@@ -109,9 +153,14 @@ namespace svgpp
 
                 typedef Platform::String^ element_name_type;
 
-                static element_name_type get_local_name(iterator_type xml_element)
+                static element_name_type get_local_name(IXmlNode^ const node)
                 {
-                    return safe_cast<Platform::String^>(xml_element->LocalName);
+                    auto type = node->GetType()->FullName;
+                    auto nodeType = node->NodeType.ToString();
+
+                    auto name = safe_cast<Platform::String^>(node->LocalName);
+                    
+                    return name;
                 }
 
                 static string_type get_string_range(Platform::String^ str)
@@ -128,17 +177,32 @@ namespace svgpp
 
                 static iterator_type get_child_elements(IXmlNode^ const xml_node)
                 {
-                    throw E_UNEXPECTED;
+                    auto node = xml_node->FirstChild;
+                    while (node != nullptr && node->NodeType != NodeType::ElementNode)
+                    {
+                        node = node->NextSibling;
+                    }
+                    return node;
                 }
 
-                static bool is_end(IXmlNode^ const xml_node)
+                static IXmlNode^ FindNextElement(IXmlNode^ node)
                 {
-                    throw E_UNEXPECTED;
+                    do
+                    {
+                        node = node->NextSibling;
+                    } while (node != nullptr && node->NodeType != NodeType::ElementNode);
+
+                    return node;
                 }
 
-                static void advance_element(IXmlNode^ xml_node)
+                static bool is_end(IXmlNode^ const node)
                 {
-                    throw E_UNEXPECTED;
+                    return (FindNextElement(node) == nullptr);
+                }
+
+                static void advance_element(IXmlNode^& node)
+                {
+                    node = FindNextElement(node);
                 }
             };
         }

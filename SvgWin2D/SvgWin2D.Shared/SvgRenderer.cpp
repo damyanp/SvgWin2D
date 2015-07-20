@@ -78,7 +78,7 @@ namespace SvgWin2D
     public ref class SvgRenderer sealed
     {
     public:
-        static CanvasCommandList^ Render(ICanvasResourceCreator^ resourceCreator, XmlDocument^ svgDocument)
+        static CanvasCommandList^ Render(ICanvasResourceCreator^ resourceCreator, IXmlNode^ svgElement)
         {
             auto commandList = ref new CanvasCommandList(resourceCreator);
             auto ds = commandList->CreateDrawingSession();
@@ -87,7 +87,7 @@ namespace SvgWin2D
             document_traversal<
                 processed_elements<processed_elements_t>,
                 processed_attributes<traits::shapes_attributes_by_element>
-                >::load_document(safe_cast<IXmlNode^>(svgDocument), context);
+                >::load_document(svgElement, context);
 
             auto format = ref new CanvasTextFormat();
             format->HorizontalAlignment = CanvasHorizontalAlignment::Center;
