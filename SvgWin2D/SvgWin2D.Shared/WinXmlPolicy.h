@@ -197,7 +197,7 @@ namespace svgpp
 
                 static bool is_end(IXmlNode^ const node)
                 {
-                    return (FindNextElement(node) == nullptr);
+                    return node == nullptr;
                 }
 
                 static void advance_element(IXmlNode^& node)
