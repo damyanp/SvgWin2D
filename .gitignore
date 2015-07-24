@@ -7,3 +7,4 @@ AppPackages/
 *.sdf
 *.suo
 *.user
+project.lock.json
