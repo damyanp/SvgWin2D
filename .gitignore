@@ -1,0 +1,9 @@
+Debug/
+Release/
+ipch/
+packages/
+AppPackages/
+*.opensdf
+*.sdf
+*.suo
+*.user
