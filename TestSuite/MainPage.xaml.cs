@@ -30,9 +30,11 @@ namespace TestSuite
             this.Loaded += MainPage_Loaded;
         }
 
+        TestSuite testSuite;
         async void MainPage_Loaded(object sender, RoutedEventArgs e)
         {
-            this.DataContext = await TestSuite.DownloadTestSuite();
+            this.DataContext = testSuite = await TestSuite.DownloadTestSuite();
         }
+
     }
 }

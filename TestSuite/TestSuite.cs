@@ -26,6 +26,15 @@ namespace TestSuite
                 return "http://www.w3.org/Graphics/SVG/Test/20110816/png/" + Name.Replace(".svg", ".png");
             }
         }
+
+        public string SvgUri
+        {
+            get
+            {
+                return "http://www.w3.org/Graphics/SVG/Test/20110816/svg/" + Name;
+            }
+        }
+
     }
 
 

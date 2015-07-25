@@ -22,7 +22,7 @@
             SVG Test Suite
         </TextBlock>
 
-        <ListView
+        <ListView x:Name="testList"
             Grid.Column="0" Grid.Row="1" Margin="10"
             SelectionMode="Single" ItemsSource="{Binding Tests}" SelectedItem="{Binding SelectedTest, Mode=TwoWay}">
             <ListView.ItemTemplate>
@@ -31,22 +31,8 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
+        
+        <local:TestDisplay Grid.Column="1" Grid.Row="1" Margin="10" SvgTest="{Binding SelectedItem, ElementName=testList}" />
 
-        <Grid Grid.Column="1" Grid.Row="1" Margin="10">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <TextBlock Grid.Row="0" Grid.ColumnSpan="2" Style="{ThemeResource TitleTextBlockStyle}" Text="{Binding SelectedTest.Name}" />
-
-            <StackPanel Grid.Row="1" Grid.Column="2" VerticalAlignment="Top">
-                <TextBlock Style="{ThemeResource CaptionTextBlockStyle}" FontStyle="Italic">Reference png:</TextBlock>
-                <Image Source="{Binding SelectedTest.ReferencePngUri}" Stretch="None"/>
-            </StackPanel>
-        </Grid>
     </Grid>
 </Page>

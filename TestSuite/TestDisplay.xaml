@@ -1,0 +1,35 @@
+﻿<UserControl
+    x:Class="TestSuite.TestDisplay"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:TestSuite"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DesignHeight="300"
+    d:DesignWidth="400"
+    d:DataContext="{d:DesignInstance IsDesignTimeCreatable=True, Type=local:TestDisplayDesignData}">
+
+    <Grid>
+        <Grid Grid.Column="1" Grid.Row="1" Margin="10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.Row="0" Grid.ColumnSpan="2">
+                <TextBlock Style="{ThemeResource TitleTextBlockStyle}" Text="{Binding Name}" />
+                <TextBlock Style="{ThemeResource BodyTextBlockStyle}" Text="{Binding Description}" />
+            </StackPanel>
+            <StackPanel Grid.Row="1" Grid.Column="2" VerticalAlignment="Top">
+                <TextBlock Style="{ThemeResource CaptionTextBlockStyle}" FontStyle="Italic">Reference png:</TextBlock>
+                <Image Source="{Binding ReferencePngUri}" Stretch="None"/>
+            </StackPanel>
+        </Grid>
+
+    </Grid>
+</UserControl>
