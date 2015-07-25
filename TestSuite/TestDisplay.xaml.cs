@@ -1,4 +1,6 @@
 ﻿using Microsoft.Graphics.Canvas;
+using Microsoft.Graphics.Canvas.Text;
+using Microsoft.Graphics.Canvas.UI.Xaml;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,6 +9,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -42,7 +45,6 @@ namespace TestSuite
         }
 
         public string Name { get { return test.Name; } }
-        public string ReferencePngUri { get { return test.ReferencePngUri; } }
         public string Description { get { return "description"; } }
     }
 
@@ -74,13 +76,26 @@ namespace TestSuite
                 return;
 
             instance.DataContext = await TestDisplayData.CreateAsync((SvgTest)e.NewValue);
+            instance.canvas.Invalidate();
         }
 
         public TestDisplay()
         {
             DataContext = null;
-            this.InitializeComponent();
-            
+            this.InitializeComponent();           
+        }
+
+        void CanvasControl_Draw(CanvasControl sender, CanvasDrawEventArgs args)
+        {
+            var data = DataContext as TestDisplayData;
+            if (data == null)
+                return;
+
+            var ds = args.DrawingSession;
+            ds.DrawImage(data.ReferencePng);
+
+            var bounds = data.ReferencePng.Bounds;
+            ds.DrawText("Reference Image", 0, (float)bounds.Bottom, Colors.Black, new CanvasTextFormat() { VerticalAlignment = CanvasVerticalAlignment.Top });
         }
     }
 }
