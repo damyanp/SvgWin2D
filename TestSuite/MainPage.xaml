@@ -5,6 +5,7 @@
     xmlns:local="using:TestSuite"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    d:DataContext="{d:DesignInstance IsDesignTimeCreatable=True, Type=local:DesignTimeTestSuite}"
     mc:Ignorable="d">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
@@ -17,10 +18,35 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Style="{ThemeResource TitleTextBlockStyle}" Margin="{ThemeResource ContentDialogTitleMargin}" Grid.Row="0" Grid.ColumnSpan="2">
+        <TextBlock Style="{ThemeResource HeaderTextBlockStyle}" Margin="{ThemeResource ContentDialogTitleMargin}" Grid.Row="0" Grid.ColumnSpan="2">
             SVG Test Suite
         </TextBlock>
-        
-        
+
+        <ListView
+            Grid.Column="0" Grid.Row="1" Margin="10"
+            SelectionMode="Single" ItemsSource="{Binding Tests}" SelectedItem="{Binding SelectedTest, Mode=TwoWay}">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Name}" />
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+
+        <Grid Grid.Column="1" Grid.Row="1" Margin="10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" Grid.ColumnSpan="2" Style="{ThemeResource TitleTextBlockStyle}" Text="{Binding SelectedTest.Name}" />
+
+            <StackPanel Grid.Row="1" Grid.Column="2" VerticalAlignment="Top">
+                <TextBlock Style="{ThemeResource CaptionTextBlockStyle}" FontStyle="Italic">Reference png:</TextBlock>
+                <Image Source="{Binding SelectedTest.ReferencePngUri}" Stretch="None"/>
+            </StackPanel>
+        </Grid>
     </Grid>
 </Page>
