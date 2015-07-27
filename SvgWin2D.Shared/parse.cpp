@@ -52,9 +52,9 @@ std::unique_ptr<viewBox> parse_viewBox(Platform::String^ viewBoxString)
 }
 
 
-std::unique_ptr<viewBox> parse_viewBox(IXmlNode^ svgElement)
+std::unique_ptr<viewBox> parse_viewBox(IXmlNode^ element)
 {
-    auto attribute = svgElement->Attributes->GetNamedItemNS(SVG_NS, L"viewBox");
+    auto attribute = element->Attributes->GetNamedItemNS(SVG_NS, L"viewBox");
     if (!attribute)
         return nullptr;
 
@@ -66,9 +66,67 @@ std::unique_ptr<viewBox> parse_viewBox(IXmlNode^ svgElement)
 }
 
 
+std::wregex gLengthRegex(L"(-?[0-9.]+)(em|ex|px|in|cm|mm|pt|pc|%)?");
+
+length parse_length(Platform::String^ lengthString, length defaultLength)
+{
+    std::wcmatch match;
+
+    if (!std::regex_match(lengthString->Data(), lengthString->Data() + lengthString->Length(), match, gLengthRegex))
+        return defaultLength;
+
+    float number = static_cast<float>(_wtof(match[1].str().c_str()));
+
+    if (!match[2].matched)
+        return length{ number, unit::unspecified };
+   
+    auto unitString = match[2].str();
+
+    static std::pair<std::wstring, unit> unitNames[] =
+    { 
+        { L"em", unit::em },
+        { L"ex", unit::ex },
+        { L"px", unit::px },
+        { L"in", unit::in },
+        { L"cm", unit::cm },
+        { L"mm", unit::mm },
+        { L"pt", unit::pt },
+        { L"pc", unit::pc },
+        { L"%",  unit::percent }
+    };
+    
+    for (auto const& unitName : unitNames)
+    {
+        if (unitName.first == unitString)
+            return length{ number, unitName.second };
+    }
+    
+    return defaultLength;
+}
+
+
+length parse_width_or_height(IXmlNode^ element, Platform::String^ name)
+{
+    auto defaultLength = length{ 100, unit::percent };
+
+    auto attribute = element->Attributes->GetNamedItemNS(SVG_NS, name);
+    if (!attribute)
+        return defaultLength;
+
+    auto attributeString = dynamic_cast<Platform::String^>(attribute->NodeValue);
+    if (!attributeString)
+        return defaultLength;
+
+    return parse_length(attributeString, defaultLength);
+}
+
+
 std::unique_ptr<svg> build_svg(IXmlNode^ svgElement)
 {
-    return std::make_unique<svg>(parse_viewBox(svgElement));
+    return std::make_unique<svg>(
+        parse_viewBox(svgElement),
+        parse_width_or_height(svgElement, L"width"),
+        parse_width_or_height(svgElement, L"height"));
 }
 
 
