@@ -9,32 +9,44 @@ Platform::String^ XMLNS_SVG = L"xmlns:svg='http://www.w3.org/2000/svg'";
 
 std::wregex gTokenRegex(L"(-?[0-9.]+)\\s*,?\\s*");
 
+class list_parser
+{
+    Platform::String^ toParse_;
+    std::regex_token_iterator<const wchar_t*> it_;
+    
+public:
+    list_parser(Platform::String^ toParse)
+        : toParse_(toParse)
+        , it_(toParse->Begin(), toParse->Begin() + toParse->Length(), gTokenRegex)
+    {
+    }
+
+    bool try_get_next(float* value)
+    {
+        if (it_ == std::regex_token_iterator<const wchar_t*>())
+            return false;
+
+        *value = static_cast<float>(_wtof(it_->str().c_str()));
+        ++it_;
+
+        return true;
+    }
+};
+
+
 std::unique_ptr<viewBox> parse_viewBox(Platform::String^ viewBoxString)
 {
-    auto viewBoxBegin = viewBoxString->Data();
-    auto viewBoxEnd = viewBoxBegin + viewBoxString->Length();
-    std::regex_token_iterator<const wchar_t*> it(viewBoxBegin, viewBoxEnd, gTokenRegex);
-    std::regex_token_iterator<const wchar_t*> end;
+    float x, y, w, h;
 
-    if (it == end)
-        return nullptr;
-    float x = static_cast<float>(_wtof(it->str().c_str()));
-    ++it;
+    list_parser parser(viewBoxString);
 
-    if (it == end)
+    if (!(parser.try_get_next(&x) 
+        && parser.try_get_next(&y) 
+        && parser.try_get_next(&w) 
+        && parser.try_get_next(&h)))
+    {
         return nullptr;
-    float y = static_cast<float>(_wtof(it->str().c_str()));
-    ++it;
-
-    if (it == end)
-        return nullptr;
-    float w = static_cast<float>(_wtof(it->str().c_str()));
-    ++it;
-
-    if (it == end)
-        return nullptr;
-    float h = static_cast<float>(_wtof(it->str().c_str()));
-    ++it;
+    }
 
     return std::make_unique<viewBox>(x, y, w, h);
 }
