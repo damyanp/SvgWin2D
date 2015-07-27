@@ -1,5 +1,7 @@
 #pragma once
 
+#include "svg.h"
+
 namespace SvgWin2D
 {
     using namespace Microsoft::Graphics::Canvas;
@@ -8,8 +10,21 @@ namespace SvgWin2D
 
     public ref class SvgDrawing sealed
     {
+        std::unique_ptr<svg> root_;
+
     public:
-        IAsyncOperation<SvgDrawing^>^ Load(ICanvasResourceCreator^ resourceCreator, XmlDocument^ svgDocument);
+        //
+        // Builds up the SvgDrawing instance from an SvgDocument.  This is async because the SVG file may reference other
+        // resources that need to be downloaded.
+        //
+        static IAsyncOperation<SvgDrawing^>^ LoadAsync(ICanvasResourceCreator^ resourceCreator, XmlDocument^ svgDocument);
+
+    private:
+        SvgDrawing(std::unique_ptr<svg>&& root)
+            : root_(std::move(root))
+        {}
+
+        static SvgDrawing^ Load(ICanvasResourceCreator^ resourceCreator, XmlDocument^ svgDocument);
     };
 }
 

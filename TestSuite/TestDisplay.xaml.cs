@@ -1,12 +1,14 @@
 ﻿using Microsoft.Graphics.Canvas;
 using Microsoft.Graphics.Canvas.Text;
 using Microsoft.Graphics.Canvas.UI.Xaml;
+using SvgWin2D;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
+using Windows.Data.Xml.Dom;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI;
@@ -27,6 +29,7 @@ namespace TestSuite
         SvgTest test;
 
         public CanvasBitmap ReferencePng { get; private set; }
+        public SvgDrawing Drawing { get; private set; }
 
         public static async Task<TestDisplayData> CreateAsync(SvgTest test)
         {
@@ -35,6 +38,9 @@ namespace TestSuite
             var device = CanvasDevice.GetSharedDevice(false);
 
             data.ReferencePng = await DownloadPng(device, new Uri(test.ReferencePngUri));
+
+            var svgDocument = await XmlDocument.LoadFromUriAsync(new Uri(test.SvgUri));
+            data.Drawing = await SvgDrawing.LoadAsync(device, svgDocument);
 
             return data;
         }

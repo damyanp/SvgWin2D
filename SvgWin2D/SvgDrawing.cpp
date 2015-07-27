@@ -1,11 +1,20 @@
 #include "pch.h"
 
 #include "SvgDrawing.h"
+#include "parse.h"
 
 using namespace SvgWin2D;
 
+
+
 /*static*/
-IAsyncOperation<SvgDrawing^>^ SvgDrawing::Load(ICanvasResourceCreator^ resourceCreator, XmlDocument^ svgDocument)
+IAsyncOperation<SvgDrawing^>^ SvgDrawing::LoadAsync(ICanvasResourceCreator^ resourceCreator, XmlDocument^ svgDocument)
 {
-    return nullptr;
+    return concurrency::create_async([=] { return Load(resourceCreator, svgDocument); });
+}
+
+
+SvgDrawing^ SvgDrawing::Load(ICanvasResourceCreator^ resourceCreator, XmlDocument^ svgDocument)
+{
+    return ref new SvgDrawing(build_svg(svgDocument));
 }
