@@ -2,7 +2,11 @@
 
 #include "svg.h"
 
-float calculate_width_or_height(length svgLength, float destinationLength)
+using namespace Microsoft::Graphics::Canvas;
+using namespace Windows::Foundation;
+using namespace Windows::UI;
+
+static float calculate_width_or_height(length svgLength, float destinationLength)
 {
     switch (svgLength.Unit)
     {
@@ -18,13 +22,18 @@ float calculate_width_or_height(length svgLength, float destinationLength)
 }
 
 
-float svg::calculate_width(float destinationWidth)
+ICanvasImage^ svg::create_image(Size destinationSize)
 {
-    return calculate_width_or_height(width_, destinationWidth);
-}
+    auto background = ref new Effects::ColorSourceEffect();
+    background->Color = Colors::Blue;
 
+    auto crop = ref new Effects::CropEffect();
 
-float svg::calculate_height(float destinationHeight)
-{
-    return calculate_width_or_height(height_, destinationHeight);
+    auto width = calculate_width_or_height(width_, destinationSize.Width);
+    auto height = calculate_width_or_height(height_, destinationSize.Height);
+
+    crop->SourceRectangle = Rect{ 0, 0, width, height };
+    crop->Source = background;
+
+    return crop;
 }

@@ -52,5 +52,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="SvgWin2D.UnitTest_TemporaryKey.pfx" />
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

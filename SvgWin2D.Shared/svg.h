@@ -1,5 +1,8 @@
 #pragma once
 
+using namespace Microsoft::Graphics::Canvas;
+using namespace Windows::Foundation;
+
 enum class unit
 {
     em,
@@ -50,6 +53,5 @@ public:
         , height_(height)
     {}
 
-    float calculate_width(float destinationWidth);
-    float calculate_height(float destinationHeight);
+    ICanvasImage^ create_image(Size destinationSize);
 };
