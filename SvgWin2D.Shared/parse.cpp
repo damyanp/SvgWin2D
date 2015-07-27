@@ -4,7 +4,7 @@
 
 using namespace Windows::Data::Xml::Dom;
 
-Platform::String^ SVG_NS = L"http://w3.org/2000/svg";
+Platform::String^ SVG_NS = L"http://www.w3.org/2000/svg";
 Platform::String^ XMLNS_SVG = L"xmlns:svg='http://www.w3.org/2000/svg'";
 
 std::wregex gTokenRegex(L"(-?[0-9.]+)\\s*,?\\s*");
@@ -105,11 +105,9 @@ length parse_length(Platform::String^ lengthString, length defaultLength)
 }
 
 
-length parse_width_or_height(IXmlNode^ element, Platform::String^ name)
+length parse_length(IXmlNode^ element, Platform::String^ name, length defaultLength)
 {
-    auto defaultLength = length{ 100, unit::percent };
-
-    auto attribute = element->Attributes->GetNamedItemNS(SVG_NS, name);
+    auto attribute = element->Attributes->GetNamedItem(name);
     if (!attribute)
         return defaultLength;
 
@@ -119,6 +117,19 @@ length parse_width_or_height(IXmlNode^ element, Platform::String^ name)
 
     return parse_length(attributeString, defaultLength);
 }
+
+
+length parse_width_or_height(IXmlNode^ element, Platform::String^ name)
+{
+    return parse_length(element, name, length{ 100, unit::percent });
+}
+
+
+length parse_coordinate(IXmlNode^ element, Platform::String^ name)
+{
+    return parse_length(element, name, length{ 0, unit::unspecified });
+}
+
 
 static std::unique_ptr<element> parse_any_element(IXmlNode^ node);
 
@@ -161,17 +172,36 @@ std::unique_ptr<group> parse_g(IXmlNode^ node)
 }
 
 
+std::unique_ptr<circle> parse_circle(IXmlNode^ node)
+{
+    return std::make_unique<circle>(
+        parse_coordinate(node, L"cx"),
+        parse_coordinate(node, L"cy"),
+        parse_coordinate(node, L"r"));
+}
+
+
 std::unique_ptr<element> parse_any_element(IXmlNode^ node)
 {
-    if (node->NamespaceUri != SVG_NS)
+    auto fullName = node->NodeName;
+    auto localName = node->LocalName;
+    auto nsuri = node->NamespaceUri;
+
+    auto nsuri_uri = dynamic_cast<Windows::Foundation::Uri^>(nsuri);
+    auto nsuri_str = dynamic_cast<Platform::String^>(nsuri);
+    
+
+    if (dynamic_cast<Platform::String^>(node->NamespaceUri) != SVG_NS)
         return nullptr;
 
-    auto name = node->LocalName;
+    auto name = dynamic_cast<Platform::String^>(node->LocalName);
 
     if (name == L"svg")
         return parse_svg(node);
     else if (name == L"g")
         return parse_g(node);
+    else if (name == L"circle")
+        return parse_circle(node);
     else
         return nullptr;
 }

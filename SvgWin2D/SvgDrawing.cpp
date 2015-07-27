@@ -15,11 +15,11 @@ IAsyncOperation<SvgDrawing^>^ SvgDrawing::LoadAsync(ICanvasResourceCreator^ reso
 
 SvgDrawing^ SvgDrawing::Load(ICanvasResourceCreator^ resourceCreator, XmlDocument^ svgDocument)
 {
-    return ref new SvgDrawing(parse_svg(svgDocument));
+    return ref new SvgDrawing(resourceCreator, parse_svg(svgDocument));
 }
 
 
 ICanvasImage^ SvgDrawing::Draw(Size destinationSize)
 {
-    return root_->create_image(destinationSize);
+    return root_->create_image(resourceCreator_, destinationSize);
 }

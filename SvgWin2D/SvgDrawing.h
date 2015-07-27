@@ -10,6 +10,7 @@ namespace SvgWin2D
 
     public ref class SvgDrawing sealed
     {
+        ICanvasResourceCreator^ resourceCreator_;
         std::unique_ptr<svg> root_;
 
     public:
@@ -22,8 +23,9 @@ namespace SvgWin2D
         ICanvasImage^ Draw(Size destinationSize);
 
     private:
-        SvgDrawing(std::unique_ptr<svg>&& root)
-            : root_(std::move(root))
+        SvgDrawing(ICanvasResourceCreator^ resourceCreator, std::unique_ptr<svg>&& root)
+            : resourceCreator_(resourceCreator)
+            , root_(std::move(root))
         {}
 
         static SvgDrawing^ Load(ICanvasResourceCreator^ resourceCreator, XmlDocument^ svgDocument);

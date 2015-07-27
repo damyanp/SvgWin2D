@@ -43,6 +43,7 @@ struct viewBox
 class element
 {
 public:
+    virtual void draw(CanvasDrawingSession^ ds) = 0;
 };
 
 typedef std::vector<std::unique_ptr<element>> element_vector;
@@ -53,7 +54,10 @@ class container_element : public element
 
 public:
     void add_child(std::unique_ptr<element>&& child);
+
+    virtual void draw(CanvasDrawingSession^ ds) override;
 };
+
 
 class svg : public container_element
 {
@@ -68,12 +72,30 @@ public:
         , height_(height)
     {}
 
-    ICanvasImage^ create_image(Size destinationSize);
+    ICanvasImage^ create_image(ICanvasResourceCreator^ resourceCreator, Size destinationSize);
 };
+
 
 class group : public container_element
 {
     element_vector elements_;
 
 public:
+};
+
+
+class circle : public element
+{
+    length cx_;
+    length cy_;
+    length radius_;
+
+public:
+    circle(length cx, length cy, length radius)
+        : cx_(cx)
+        , cy_(cy)
+        , radius_(radius)
+    {}
+
+    virtual void draw(CanvasDrawingSession^ ds) override;
 };
