@@ -19,6 +19,8 @@ namespace SvgWin2D
         //
         static IAsyncOperation<SvgDrawing^>^ LoadAsync(ICanvasResourceCreator^ resourceCreator, XmlDocument^ svgDocument);
 
+        ICanvasImage^ Draw(Size destinationSize);
+
     private:
         SvgDrawing(std::unique_ptr<svg>&& root)
             : root_(std::move(root))

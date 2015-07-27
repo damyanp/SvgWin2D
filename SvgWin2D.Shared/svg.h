@@ -49,4 +49,7 @@ public:
         , width_(width)
         , height_(height)
     {}
+
+    float calculate_width(float destinationWidth);
+    float calculate_height(float destinationHeight);
 };

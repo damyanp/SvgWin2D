@@ -122,6 +122,9 @@ namespace TestSuite
 
             var bounds = data.ReferencePng.Bounds;
             ds.DrawText("Reference Image", 0, (float)bounds.Bottom, Colors.Black, new CanvasTextFormat() { VerticalAlignment = CanvasVerticalAlignment.Top });
+
+            var image = data.Drawing.Draw(new Size(480, 360));            
+            ds.DrawImage(image, 0, (float)(bounds.Height + 30));
         }
     }
 }
