@@ -120,19 +120,67 @@ length parse_width_or_height(IXmlNode^ element, Platform::String^ name)
     return parse_length(attributeString, defaultLength);
 }
 
+static std::unique_ptr<element> parse_any_element(IXmlNode^ node);
 
-std::unique_ptr<svg> build_svg(IXmlNode^ svgElement)
+template<typename SVG>
+void add_children(SVG* svg, IXmlNode^ xml)
 {
-    return std::make_unique<svg>(
-        parse_viewBox(svgElement),
-        parse_width_or_height(svgElement, L"width"),
-        parse_width_or_height(svgElement, L"height"));
+    for (auto const& childNode : xml->ChildNodes)
+    {
+        if (childNode->NodeType != NodeType::ElementNode)
+            continue;
+
+        auto childElement = parse_any_element(childNode);
+
+        if (childElement)
+            svg->add_child(std::move(childElement));
+    }
 }
 
 
-std::unique_ptr<svg> build_svg(XmlDocument^ svgDocument)
+std::unique_ptr<svg> parse_svg(IXmlNode^ svgElement)
+{
+    auto svgNode = std::make_unique<svg>(
+        parse_viewBox(svgElement),
+        parse_width_or_height(svgElement, L"width"),
+        parse_width_or_height(svgElement, L"height"));
+
+    add_children(svgNode.get(), svgElement);
+
+    return svgNode;
+}
+
+
+std::unique_ptr<group> parse_g(IXmlNode^ node)
+{
+    auto g = std::make_unique<group>();
+
+    add_children(g.get(), node);
+
+    return g;
+}
+
+
+std::unique_ptr<element> parse_any_element(IXmlNode^ node)
+{
+    if (node->NamespaceUri != SVG_NS)
+        return nullptr;
+
+    auto name = node->LocalName;
+
+    if (name == L"svg")
+        return parse_svg(node);
+    else if (name == L"g")
+        return parse_g(node);
+    else
+        return nullptr;
+}
+
+
+
+std::unique_ptr<svg> parse_svg(XmlDocument^ svgDocument)
 {
     auto svgElement = svgDocument->SelectSingleNodeNS("svg:svg", XMLNS_SVG);
-    return build_svg(svgElement);
+    return parse_svg(svgElement);
 }
 
