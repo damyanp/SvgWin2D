@@ -34,9 +34,29 @@ namespace TestSuite
 
             var device = CanvasDevice.GetSharedDevice(false);
 
-            data.ReferencePng = await CanvasBitmap.LoadAsync(device, new Uri(test.ReferencePngUri));
+            data.ReferencePng = await DownloadPng(device, new Uri(test.ReferencePngUri));
 
             return data;
+        }
+
+        private static async Task<CanvasBitmap> DownloadPng(CanvasDevice device, Uri uri)
+        {
+            try
+            {
+                return await CanvasBitmap.LoadAsync(device, uri);
+            }
+            catch (FileNotFoundException)
+            {
+                var rt = new CanvasRenderTarget(device, 480, 360, 96);
+
+                using (var ds = rt.CreateDrawingSession())
+                {
+                    ds.Clear(Colors.Transparent);
+                    ds.DrawLine(0, 0, (float)rt.Size.Width, (float)rt.Size.Height, Colors.Black, 1);
+                    ds.DrawLine(0, (float)rt.Size.Height, (float)rt.Size.Width, 0, Colors.Black, 1);
+                }
+                return rt;
+            }
         }
 
         TestDisplayData(SvgTest test)
