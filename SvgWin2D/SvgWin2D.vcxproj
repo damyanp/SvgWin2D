@@ -208,6 +208,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
+    <ClInclude Include="SvgDrawing.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -218,8 +219,19 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="SvgDrawing.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\packages\Win2D.uwp.0.0.24-validate-0723-1530\build\native\Win2D.uwp.targets" Condition="Exists('..\packages\Win2D.uwp.0.0.24-validate-0723-1530\build\native\Win2D.uwp.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Win2D.uwp.0.0.24-validate-0723-1530\build\native\Win2D.uwp.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Win2D.uwp.0.0.24-validate-0723-1530\build\native\Win2D.uwp.targets'))" />
+  </Target>
 </Project>

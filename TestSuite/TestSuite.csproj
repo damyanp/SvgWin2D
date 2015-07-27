@@ -138,6 +138,12 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SvgWin2D\SvgWin2D.vcxproj">
+      <Project>{65bf0f5f-2919-45fe-957a-33253f4aa99c}</Project>
+      <Name>SvgWin2D</Name>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>
