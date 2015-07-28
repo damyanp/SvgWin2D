@@ -209,6 +209,8 @@ std::unique_ptr<svg> parse_svg(XmlDocument^ svgDocument)
 
 
 element::element(IXmlNode^ node)
+    : fillPaint_(parse_paint(node, L"fill"))
+    , strokePaint_(parse_paint(node, L"stroke"))
 {
 }
 
@@ -244,16 +246,8 @@ group::group(IXmlNode^ node)
 }
 
 
-shape::shape(IXmlNode^ node)
-    : element(node)
-    , fillPaint_(parse_paint(node, L"fill"))
-    , strokePaint_(parse_paint(node, L"stroke"))
-{
-}
-
-
 circle::circle(IXmlNode^ node)
-    : shape(node)
+    : element(node)
     , cx_(parse_coordinate(node, L"cx"))
     , cy_(parse_coordinate(node, L"cy"))
     , radius_(parse_coordinate(node, L"r"))

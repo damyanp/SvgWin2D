@@ -6,6 +6,19 @@ using namespace Microsoft::Graphics::Canvas;
 using namespace Windows::Foundation;
 using namespace Windows::UI;
 
+
+ICanvasBrush^ element::fillBrush(ICanvasResourceCreator^ resourceCreator)
+{
+    return fillPaint_.brush(resourceCreator);
+}
+
+
+ICanvasBrush^ element::strokeBrush(ICanvasResourceCreator^ resourceCreator)
+{
+    return strokePaint_.brush(resourceCreator);
+}
+
+
 void container_element::draw(CanvasDrawingSession^ ds)
 {
     for (auto const& child : elements_)
@@ -48,18 +61,6 @@ ICanvasImage^ svg::create_image(ICanvasResourceCreator^ resourceCreator, Size de
     crop->Source = content;
 
     return crop;
-}
-
-
-ICanvasBrush^ shape::fillBrush(ICanvasResourceCreator^ resourceCreator)
-{
-    return fillPaint_.brush(resourceCreator);
-}
-
-
-ICanvasBrush^ shape::strokeBrush(ICanvasResourceCreator^ resourceCreator)
-{
-    return strokePaint_.brush(resourceCreator);
 }
 
 

@@ -47,10 +47,16 @@ struct viewBox
 
 class element
 {
+    paint fillPaint_;
+    paint strokePaint_;
+
 public:
     element(IXmlNode^ node);
 
     virtual void draw(CanvasDrawingSession^ ds) = 0;
+
+    ICanvasBrush^ fillBrush(ICanvasResourceCreator^ resourceCreator);
+    ICanvasBrush^ strokeBrush(ICanvasResourceCreator^ resourceCreator);
 };
 
 typedef std::vector<std::unique_ptr<element>> element_vector;
@@ -88,20 +94,7 @@ public:
 };
 
 
-class shape : public element
-{
-    paint fillPaint_;
-    paint strokePaint_;
-
-protected:
-    shape(IXmlNode^ node);
-
-    ICanvasBrush^ fillBrush(ICanvasResourceCreator^ resourceCreator);
-    ICanvasBrush^ strokeBrush(ICanvasResourceCreator^ resourceCreator);
-};
-
-
-class circle : public shape
+class circle : public element
 {
     length cx_;
     length cy_;
