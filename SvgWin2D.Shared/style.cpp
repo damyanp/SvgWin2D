@@ -7,6 +7,7 @@ using namespace Windows::Foundation;
 style::style()
     : fill_(paint_type::color, Colors::Black)
     , stroke_(paint_type::none, Colors::Black)
+    , strokeWidth_(length{ 0, unit::unspecified })
 {
 }
 
@@ -22,6 +23,11 @@ ICanvasBrush^ style::strokeBrush(ICanvasResourceCreator^ resourceCreator)
     return stroke_.brush(resourceCreator);
 }
 
+
+float style::stroke_width()
+{
+    return strokeWidth_.Number; // TODO: respect the Unit!
+}
 
 
 inherited_style::inherited_style()

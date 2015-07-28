@@ -1,5 +1,6 @@
 #pragma once
 
+#include "length.h"
 #include "paint.h"
 
 //
@@ -13,15 +14,18 @@ class style
 {
     paint fill_;
     paint stroke_;
+    length strokeWidth_;
 
 public:
     style();
 
     void set_fill(paint value) { fill_ = value; }
     void set_stroke(paint value) { stroke_ = value; }
+    void set_stroke_width(length value) { strokeWidth_ = value; }
 
     ICanvasBrush^ fillBrush(ICanvasResourceCreator^ resourceCreator);
     ICanvasBrush^ strokeBrush(ICanvasResourceCreator^ resourceCreator);
+    float stroke_width();
 };
 
 

@@ -141,6 +141,20 @@ length parse_coordinate(IXmlNode^ element, Platform::String^ name)
 }
 
 
+std::unique_ptr<length> parse_stroke_width(IXmlNode^ element)
+{
+    auto lengthString = get_attribute(element, L"stroke-width");
+
+    if (!lengthString)
+        return nullptr;
+
+    if (lengthString == L"inherit")
+        return nullptr;
+
+    return std::make_unique<length>(parse_length(lengthString, length{ 0, unit::unspecified }));
+}
+
+
 // hex colors are either #XXX or #XXXXXX where 'X' is a hex digit
 std::wregex gHexColorRegex(L"#([[:xdigit:]]{3}|[[:xdigit:]]{6})");
 
@@ -240,6 +254,7 @@ std::unique_ptr<svg> parse_svg(XmlDocument^ svgDocument)
 element::element(IXmlNode^ node)
     : fillPaint_(parse_paint(node, L"fill"))
     , strokePaint_(parse_paint(node, L"stroke"))
+    , strokeWidth_(parse_stroke_width(node))
 {
 }
 

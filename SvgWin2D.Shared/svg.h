@@ -1,5 +1,6 @@
 #pragma once
 
+#include "length.h"
 #include "paint.h"
 #include "style.h"
 
@@ -8,31 +9,6 @@ using namespace Microsoft::Graphics::Canvas::Brushes;
 using namespace Windows::Data::Xml::Dom;
 using namespace Windows::Foundation;
 using namespace Windows::UI;
-
-enum class unit
-{
-    em,
-    ex,
-    px,
-    in,
-    cm,
-    mm,
-    pt,
-    pc,
-    percent,
-    unspecified
-};
-
-struct length
-{
-    float Number;
-    unit Unit;
-
-    bool operator==(length const& other) const
-    {
-        return Unit == other.Unit && Number == other.Number;
-    }
-};
 
 struct viewBox
 {
@@ -50,6 +26,7 @@ class element
 {
     std::unique_ptr<paint> fillPaint_;
     std::unique_ptr<paint> strokePaint_;
+    std::unique_ptr<length> strokeWidth_;
 
 public:
     element(IXmlNode^ node);

@@ -13,6 +13,8 @@ void element::apply_style(style* s)
         s->set_fill(*fillPaint_);
     if (strokePaint_)
         s->set_stroke(*strokePaint_);
+    if (strokeWidth_)
+        s->set_stroke_width(*strokeWidth_);
 }
 
 
@@ -80,7 +82,7 @@ void circle::draw(CanvasDrawingSession^ ds, inherited_style* s)
 
     auto sb = s->current()->strokeBrush(ds);
     if (sb)
-        ds->DrawCircle(cx_.Number, cy_.Number, radius_.Number, sb);
+        ds->DrawCircle(cx_.Number, cy_.Number, radius_.Number, sb, s->current()->stroke_width());
 
     s->pop();
 }
