@@ -376,16 +376,21 @@ line::line(IXmlNode^ node)
 }
 
 
-polyline::polyline(IXmlNode^ node)
+polything::polything(IXmlNode^ node)
     : element(node)
     , points_(parse_points(node))
 {
 }
 
 
+polyline::polyline(IXmlNode^ node)
+    : polything(node)
+{
+}
+
+
 polygon::polygon(IXmlNode^ node)
-    : element(node)
-    , points_(parse_points(node))
+    : polything(node)
 {
 }
 

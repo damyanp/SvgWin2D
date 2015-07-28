@@ -6,6 +6,7 @@
 
 using namespace Microsoft::Graphics::Canvas;
 using namespace Microsoft::Graphics::Canvas::Brushes;
+using namespace Microsoft::Graphics::Canvas::Geometry;
 using namespace Windows::Data::Xml::Dom;
 using namespace Windows::Foundation;
 using namespace Windows::UI;
@@ -140,10 +141,20 @@ protected:
 typedef std::pair<float, float> point;
 
 
-class polyline : public element
+class polything : public element
 {
     std::vector<point> points_;
 
+public:
+    polything(IXmlNode^ node);
+
+protected:
+    void draw_polything(CanvasDrawingSession^ ds, inherited_style* s, CanvasFigureLoop loop);
+};
+
+
+class polyline : public polything
+{
 public:
     polyline(IXmlNode^ node);
 
@@ -152,10 +163,8 @@ protected:
 };
 
 
-class polygon : public element
+class polygon : public polything
 {
-    std::vector<point> points_;
-
 public:
     polygon(IXmlNode^ node);
 
