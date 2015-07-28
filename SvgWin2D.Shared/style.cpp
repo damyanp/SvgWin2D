@@ -7,7 +7,7 @@ using namespace Windows::Foundation;
 style::style()
     : fill_(paint_type::color, Colors::Black)
     , stroke_(paint_type::none, Colors::Black)
-    , strokeWidth_(length{ 0, unit::unspecified })
+    , strokeWidth_(length{ 1, unit::unspecified })
 {
 }
 
