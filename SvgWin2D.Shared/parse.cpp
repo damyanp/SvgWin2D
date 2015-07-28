@@ -238,7 +238,7 @@ std::vector<point> parse_points(IXmlNode^ node)
     while (parser.try_get_next(&x))
     {
         if (!parser.try_get_next(&y))
-            throw E_FAIL;       // TODO: real error handling at some point
+            break;
 
         points.push_back(std::make_pair(x,y));
     }
