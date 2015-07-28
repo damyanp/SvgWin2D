@@ -51,22 +51,6 @@ ICanvasImage^ svg::create_image(ICanvasResourceCreator^ resourceCreator, Size de
 }
 
 
-ICanvasBrush^ paint::brush(ICanvasResourceCreator^ resourceCreator)
-{
-    switch (type_)
-    {
-    case paint_type::none:
-        return nullptr;
-
-    case paint_type::color:
-        return ref new CanvasSolidColorBrush(resourceCreator, color_);
-
-    default:
-        return ref new CanvasSolidColorBrush(resourceCreator, Colors::HotPink); // TODO: the others!
-    }
-}
-
-
 ICanvasBrush^ shape::fillBrush(ICanvasResourceCreator^ resourceCreator)
 {
     return fillPaint_.brush(resourceCreator);

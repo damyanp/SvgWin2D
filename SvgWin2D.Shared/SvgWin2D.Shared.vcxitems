@@ -14,10 +14,12 @@
     <ProjectCapability Include="SourceItemsFromImports" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="$(MSBuildThisFileDirectory)paint.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)parse.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)svg.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)paint.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)parse.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)svg.cpp" />
   </ItemGroup>
