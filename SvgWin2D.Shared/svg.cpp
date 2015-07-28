@@ -86,6 +86,18 @@ void circle::draw_element(CanvasDrawingSession^ ds, inherited_style* s)
 }
 
 
+void ellipse::draw_element(CanvasDrawingSession^ ds, inherited_style* s)
+{
+    auto fb = s->current()->fillBrush(ds);
+    if (fb)
+        ds->FillEllipse(cx_.Number, cy_.Number, rx_.Number, ry_.Number, fb);
+
+    auto sb = s->current()->strokeBrush(ds);
+    if (sb)
+        ds->DrawEllipse(cx_.Number, cy_.Number, rx_.Number, ry_.Number, sb, s->current()->stroke_width());
+}
+
+
 void rect::draw_element(CanvasDrawingSession^ ds, inherited_style* s)
 {
     Rect rect{ x_.Number, y_.Number, width_.Number, height_.Number };

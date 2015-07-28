@@ -90,6 +90,21 @@ protected:
 };
 
 
+class ellipse : public element
+{
+    length cx_;
+    length cy_;
+    length rx_;
+    length ry_;
+
+public:
+    ellipse(IXmlNode^ node);
+
+protected:
+    virtual void draw_element(CanvasDrawingSession^ ds, inherited_style* s) override;
+};
+
+
 class rect : public element
 {
     length x_;

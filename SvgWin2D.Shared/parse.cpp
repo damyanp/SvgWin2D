@@ -248,6 +248,8 @@ std::unique_ptr<element> parse_any_element(IXmlNode^ node)
         return std::make_unique<circle>(node);
     else if (name == L"rect")
         return std::make_unique<rect>(node);
+    else if (name == L"ellipse")
+        return std::make_unique<ellipse>(node);
     else
         return nullptr;
 }
@@ -314,6 +316,16 @@ circle::circle(IXmlNode^ node)
 }
 
 
+ellipse::ellipse(IXmlNode^ node)
+    : element(node)
+    , cx_(parse_coordinate(node, L"cx"))
+    , cy_(parse_coordinate(node, L"cy"))
+    , rx_(parse_coordinate(node, L"rx"))
+    , ry_(parse_coordinate(node, L"ry"))
+{
+}
+
+
 rect::rect(IXmlNode^ node)
     : element(node)
     , x_(parse_coordinate(node, L"x"))
@@ -324,3 +336,5 @@ rect::rect(IXmlNode^ node)
     , ry_(parse_optional_coordinate(node, L"ry"))
 {
 }
+
+
