@@ -7,6 +7,15 @@ using namespace Windows::Foundation;
 using namespace Windows::UI;
 
 
+void element::draw(CanvasDrawingSession^ ds, inherited_style* s)
+{
+    s->push();
+    apply_style(s->current());
+    draw_element(ds, s);
+    s->pop();
+}
+
+
 void element::apply_style(style* s)
 {
     if (fillPaint_)
@@ -18,18 +27,12 @@ void element::apply_style(style* s)
 }
 
 
-void container_element::draw(CanvasDrawingSession^ ds, inherited_style* s)
+void container_element::draw_element(CanvasDrawingSession^ ds, inherited_style* s)
 {
-    s->push();
-
-    apply_style(s->current());
-
     for (auto const& child : elements_)
     {
         child->draw(ds, s);
     }
-
-    s->pop();
 }
 
 
@@ -55,7 +58,7 @@ ICanvasImage^ svg::create_image(ICanvasResourceCreator^ resourceCreator, Size de
     auto ds = content->CreateDrawingSession();
     ds->Clear(Colors::Transparent);
 
-    draw(ds, std::make_unique<inherited_style>().get());
+    draw_element(ds, std::make_unique<inherited_style>().get());
 
     delete ds;
 
@@ -71,11 +74,8 @@ ICanvasImage^ svg::create_image(ICanvasResourceCreator^ resourceCreator, Size de
 }
 
 
-void circle::draw(CanvasDrawingSession^ ds, inherited_style* s)
+void circle::draw_element(CanvasDrawingSession^ ds, inherited_style* s)
 {
-    s->push();
-    apply_style(s->current());
-
     auto fb = s->current()->fillBrush(ds);
     if (fb)
         ds->FillCircle(cx_.Number, cy_.Number, radius_.Number, fb);
@@ -83,16 +83,11 @@ void circle::draw(CanvasDrawingSession^ ds, inherited_style* s)
     auto sb = s->current()->strokeBrush(ds);
     if (sb)
         ds->DrawCircle(cx_.Number, cy_.Number, radius_.Number, sb, s->current()->stroke_width());
-
-    s->pop();
 }
 
 
-void rect::draw(CanvasDrawingSession^ ds, inherited_style* s)
+void rect::draw_element(CanvasDrawingSession^ ds, inherited_style* s)
 {
-    s->push();
-    apply_style(s->current());
-
     Rect rect{ x_.Number, y_.Number, width_.Number, height_.Number };
 
     auto fb = s->current()->fillBrush(ds);
@@ -122,6 +117,4 @@ void rect::draw(CanvasDrawingSession^ ds, inherited_style* s)
         else
             ds->DrawRectangle(rect, sb, strokeWidth);
     }
-
-    s->pop();
 }

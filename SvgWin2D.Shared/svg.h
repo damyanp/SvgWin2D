@@ -31,9 +31,12 @@ class element
 public:
     element(IXmlNode^ node);
 
-    virtual void draw(CanvasDrawingSession^ ds, inherited_style* s) = 0;
+    void draw(CanvasDrawingSession^ ds, inherited_style* s);
 
 protected:
+    virtual void draw_element(CanvasDrawingSession^ ds, inherited_style* s) = 0;
+
+private:
     void apply_style(style* s);
 };
 
@@ -46,7 +49,8 @@ class container_element : public element
 public:
     container_element(IXmlNode^ node);
 
-    virtual void draw(CanvasDrawingSession^ ds, inherited_style* s) override;
+protected:
+    virtual void draw_element(CanvasDrawingSession^ ds, inherited_style* s) override;
 };
 
 
@@ -81,7 +85,8 @@ class circle : public element
 public:
     circle(IXmlNode^ node);
 
-    virtual void draw(CanvasDrawingSession^ ds, inherited_style* s) override;
+protected:
+    virtual void draw_element(CanvasDrawingSession^ ds, inherited_style* s) override;
 };
 
 
@@ -97,5 +102,6 @@ class rect : public element
 public:
     rect(IXmlNode^ node);
 
-    virtual void draw(CanvasDrawingSession^ ds, inherited_style* s) override;
+protected:
+    virtual void draw_element(CanvasDrawingSession^ ds, inherited_style* s) override;
 };
