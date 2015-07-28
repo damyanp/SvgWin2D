@@ -135,3 +135,18 @@ public:
 protected:
     virtual void draw_element(CanvasDrawingSession^ ds, inherited_style* s) override;
 };
+
+
+typedef std::pair<float, float> point;
+
+
+class polyline : public element
+{
+    std::vector<point> points_;
+
+public:
+    polyline(IXmlNode^ node);
+
+protected:
+    virtual void draw_element(CanvasDrawingSession^ ds, inherited_style* s) override;
+};

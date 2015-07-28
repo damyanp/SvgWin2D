@@ -3,6 +3,7 @@
 #include "svg.h"
 
 using namespace Microsoft::Graphics::Canvas;
+using namespace Microsoft::Graphics::Canvas::Geometry;
 using namespace Windows::Foundation;
 using namespace Windows::UI;
 
@@ -140,5 +141,43 @@ void line::draw_element(CanvasDrawingSession^ ds, inherited_style* s)
         auto strokeWidth = s->current()->stroke_width();
 
         ds->DrawLine(x1_.Number, y1_.Number, x2_.Number, y2_.Number, sb, strokeWidth);
+    }
+}
+
+
+void polyline::draw_element(CanvasDrawingSession^ ds, inherited_style* s)
+{
+    auto path = ref new CanvasPathBuilder(ds);
+
+    bool first = true;
+
+    for (auto const& point : points_)
+    {
+        if (first)
+        {
+            path->BeginFigure(point.first, point.second);
+            first = false;
+        }
+        else
+        {
+            path->AddLine(point.first, point.second);
+        }
+    }
+
+    path->EndFigure(CanvasFigureLoop::Open);
+
+    auto geometry = CanvasGeometry::CreatePath(path);
+
+    auto fb = s->current()->fillBrush(ds);
+    if (fb)
+    {
+        ds->FillGeometry(geometry, fb);
+    }
+
+    auto sb = s->current()->strokeBrush(ds);
+    if (sb)
+    {
+        auto strokeWidth = s->current()->stroke_width();
+        ds->DrawGeometry(geometry, sb, strokeWidth);
     }
 }

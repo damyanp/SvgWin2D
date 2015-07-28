@@ -225,6 +225,28 @@ std::unique_ptr<paint> parse_paint(IXmlNode^ element, Platform::String^ name)
 }
 
 
+std::vector<point> parse_points(IXmlNode^ node)
+{
+    std::vector<point> points;
+
+    auto str = get_attribute(node, L"points");
+
+    list_parser parser(str);
+
+    float x, y;
+
+    while (parser.try_get_next(&x))
+    {
+        if (!parser.try_get_next(&y))
+            throw E_FAIL;       // TODO: real error handling at some point
+
+        points.push_back(std::make_pair(x,y));
+    }
+
+    return points;
+}
+
+
 std::unique_ptr<element> parse_any_element(IXmlNode^ node)
 {
     auto fullName = node->NodeName;
@@ -252,6 +274,8 @@ std::unique_ptr<element> parse_any_element(IXmlNode^ node)
         return std::make_unique<ellipse>(node);
     else if (name == L"line")
         return std::make_unique<line>(node);
+    else if (name == L"polyline")
+        return std::make_unique<polyline>(node);
     else
         return nullptr;
 }
@@ -349,3 +373,9 @@ line::line(IXmlNode^ node)
 {
 }
 
+
+polyline::polyline(IXmlNode^ node)
+    : element(node)
+    , points_(parse_points(node))
+{
+}
