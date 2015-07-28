@@ -66,6 +66,20 @@ std::unique_ptr<viewBox> parse_viewBox(IXmlNode^ element)
 }
 
 
+Platform::String^ get_attribute(IXmlNode^ element, Platform::String^ name)
+{
+    auto attribute = element->Attributes->GetNamedItem(name);
+    if (!attribute)
+        return nullptr;
+
+    auto attributeString = dynamic_cast<Platform::String^>(attribute->NodeValue);
+    if (!attributeString)
+        return nullptr;
+
+    return attributeString;
+}
+
+
 std::wregex gLengthRegex(L"(-?[0-9.]+)(em|ex|px|in|cm|mm|pt|pc|%)?");
 
 length parse_length(Platform::String^ lengthString, length defaultLength)
@@ -107,11 +121,7 @@ length parse_length(Platform::String^ lengthString, length defaultLength)
 
 length parse_length(IXmlNode^ element, Platform::String^ name, length defaultLength)
 {
-    auto attribute = element->Attributes->GetNamedItem(name);
-    if (!attribute)
-        return defaultLength;
-
-    auto attributeString = dynamic_cast<Platform::String^>(attribute->NodeValue);
+    auto attributeString = get_attribute(element, name);
     if (!attributeString)
         return defaultLength;
 
@@ -128,6 +138,34 @@ length parse_width_or_height(IXmlNode^ element, Platform::String^ name)
 length parse_coordinate(IXmlNode^ element, Platform::String^ name)
 {
     return parse_length(element, name, length{ 0, unit::unspecified });
+}
+
+
+paint parse_paint(IXmlNode^ element, Platform::String^ name)
+{
+    auto attributeString = get_attribute(element, name);
+
+    if (attributeString == L"none")
+        return paint(paint_type::none, Color{});
+
+    // TODO: proper color parsing!
+
+    if (attributeString == L"black")
+        return paint(paint_type::color, Colors::Black);
+
+    if (attributeString == L"green")
+        return paint(paint_type::color, Colors::Green);
+
+    if (attributeString == L"lime")
+        return paint(paint_type::color, Colors::Lime);
+
+    if (attributeString == L"yellow")
+        return paint(paint_type::color, Colors::Yellow);
+
+    if (attributeString == L"blue")
+        return paint(paint_type::color, Colors::Blue);
+
+    return paint(paint_type::color, Colors::HotPink);
 }
 
 
@@ -175,6 +213,8 @@ std::unique_ptr<group> parse_g(IXmlNode^ node)
 std::unique_ptr<circle> parse_circle(IXmlNode^ node)
 {
     return std::make_unique<circle>(
+        parse_paint(node, L"fill"),
+        parse_paint(node, L"stroke"),
         parse_coordinate(node, L"cx"),
         parse_coordinate(node, L"cy"),
         parse_coordinate(node, L"r"));
