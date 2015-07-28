@@ -150,3 +150,15 @@ public:
 protected:
     virtual void draw_element(CanvasDrawingSession^ ds, inherited_style* s) override;
 };
+
+
+class polygon : public element
+{
+    std::vector<point> points_;
+
+public:
+    polygon(IXmlNode^ node);
+
+protected:
+    virtual void draw_element(CanvasDrawingSession^ ds, inherited_style* s) override;
+};

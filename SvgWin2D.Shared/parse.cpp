@@ -276,6 +276,8 @@ std::unique_ptr<element> parse_any_element(IXmlNode^ node)
         return std::make_unique<line>(node);
     else if (name == L"polyline")
         return std::make_unique<polyline>(node);
+    else if (name == L"polygon")
+        return std::make_unique<polygon>(node);
     else
         return nullptr;
 }
@@ -379,3 +381,11 @@ polyline::polyline(IXmlNode^ node)
     , points_(parse_points(node))
 {
 }
+
+
+polygon::polygon(IXmlNode^ node)
+    : element(node)
+    , points_(parse_points(node))
+{
+}
+
