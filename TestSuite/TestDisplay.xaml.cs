@@ -1,4 +1,5 @@
 ﻿using Microsoft.Graphics.Canvas;
+using Microsoft.Graphics.Canvas.Effects;
 using Microsoft.Graphics.Canvas.Text;
 using Microsoft.Graphics.Canvas.UI.Xaml;
 using SvgWin2D;
@@ -6,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.Data.Xml.Dom;
@@ -19,6 +21,8 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Windows.Graphics.Effects;
+
 
 // The User Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -123,13 +127,35 @@ namespace TestSuite
                 return;
 
             var ds = args.DrawingSession;
-            ds.DrawImage(data.ReferencePng);
 
-            var bounds = data.ReferencePng.Bounds;
-            ds.DrawText("Reference Image", 0, (float)bounds.Bottom, Colors.Black, new CanvasTextFormat() { VerticalAlignment = CanvasVerticalAlignment.Top });
+            Color[] twoByTwoChecker =
+            {
+                Colors.LightGray, Colors.DarkGray,
+                Colors.DarkGray,  Colors.LightGray,
+            };
 
-            var image = data.Drawing.Draw(new Size(480, 360));            
-            ds.DrawImage(image, 0, (float)(bounds.Height + 30));
+            var checker = new DpiCompensationEffect
+            {
+                Source = new ScaleEffect
+                {
+                    Source = new BorderEffect
+                    {
+                        Source = CanvasBitmap.CreateFromColors(canvas, twoByTwoChecker, 2, 2),
+                        ExtendX = CanvasEdgeBehavior.Wrap,
+                        ExtendY = CanvasEdgeBehavior.Wrap
+                    },
+                    Scale = new Vector2(8, 8),
+                    InterpolationMode = CanvasImageInterpolation.NearestNeighbor
+                }
+            };
+
+            var svgImage = data.Drawing.Draw(new Size(480, 360));
+
+            ds.DrawImage(checker, new Rect(0, 0, 480, 360), new Rect(0, 0, 480, 360));
+            ds.DrawImage(svgImage, new Rect(0, 0, 480, 360), new Rect(0, 0, 480, 360));
+
+            ds.DrawImage(checker, new Rect(500, 0, 480, 360), new Rect(0, 0, 480, 360));
+            ds.DrawImage(data.ReferencePng, new Rect(500, 0, 480, 360), new Rect(0, 0, 480, 360));
         }
     }
 }
