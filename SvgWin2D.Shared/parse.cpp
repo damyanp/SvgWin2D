@@ -140,6 +140,16 @@ length parse_coordinate(IXmlNode^ element, Platform::String^ name)
     return parse_length(element, name, length{ 0, unit::unspecified });
 }
 
+std::unique_ptr<length> parse_optional_coordinate(IXmlNode^ element, Platform::String^ name)
+{
+    auto lengthString = get_attribute(element, name);
+
+    if (!lengthString)
+        return nullptr;
+
+    return std::make_unique<length>(parse_length(lengthString, length{ 0, unit::unspecified }));
+}
+
 
 std::unique_ptr<length> parse_stroke_width(IXmlNode^ element)
 {
@@ -236,6 +246,8 @@ std::unique_ptr<element> parse_any_element(IXmlNode^ node)
         return std::make_unique<group>(node);
     else if (name == L"circle")
         return std::make_unique<circle>(node);
+    else if (name == L"rect")
+        return std::make_unique<rect>(node);
     else
         return nullptr;
 }
@@ -298,5 +310,17 @@ circle::circle(IXmlNode^ node)
     , cx_(parse_coordinate(node, L"cx"))
     , cy_(parse_coordinate(node, L"cy"))
     , radius_(parse_coordinate(node, L"r"))
+{
+}
+
+
+rect::rect(IXmlNode^ node)
+    : element(node)
+    , x_(parse_coordinate(node, L"x"))
+    , y_(parse_coordinate(node, L"y"))
+    , width_(parse_coordinate(node, L"width"))
+    , height_(parse_coordinate(node, L"height"))
+    , rx_(parse_optional_coordinate(node, L"rx"))
+    , ry_(parse_optional_coordinate(node, L"ry"))
 {
 }

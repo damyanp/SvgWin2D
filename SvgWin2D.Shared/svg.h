@@ -83,3 +83,19 @@ public:
 
     virtual void draw(CanvasDrawingSession^ ds, inherited_style* s) override;
 };
+
+
+class rect : public element
+{
+    length x_;
+    length y_;
+    length width_;
+    length height_;
+    std::unique_ptr<length> rx_;
+    std::unique_ptr<length> ry_;
+
+public:
+    rect(IXmlNode^ node);
+
+    virtual void draw(CanvasDrawingSession^ ds, inherited_style* s) override;
+};

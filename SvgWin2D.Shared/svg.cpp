@@ -86,3 +86,42 @@ void circle::draw(CanvasDrawingSession^ ds, inherited_style* s)
 
     s->pop();
 }
+
+
+void rect::draw(CanvasDrawingSession^ ds, inherited_style* s)
+{
+    s->push();
+    apply_style(s->current());
+
+    Rect rect{ x_.Number, y_.Number, width_.Number, height_.Number };
+
+    auto fb = s->current()->fillBrush(ds);
+    if (fb)
+    {
+        if (rx_ && ry_)
+            ds->FillRoundedRectangle(rect, rx_->Number, ry_->Number, fb);
+        else if (rx_)
+            ds->FillRoundedRectangle(rect, rx_->Number, rx_->Number, fb);
+        else if (ry_)
+            ds->FillRoundedRectangle(rect, ry_->Number, ry_->Number, fb);
+        else
+            ds->FillRectangle(rect, fb);
+    }
+
+    auto sb = s->current()->strokeBrush(ds);
+    if (sb)
+    {
+        auto strokeWidth = s->current()->stroke_width();
+
+        if (rx_ && ry_)
+            ds->DrawRoundedRectangle(rect, rx_->Number, ry_->Number, sb, strokeWidth);
+        else if (rx_)
+            ds->DrawRoundedRectangle(rect, rx_->Number, rx_->Number, sb, strokeWidth);
+        else if (ry_)
+            ds->DrawRoundedRectangle(rect, ry_->Number, ry_->Number, sb, strokeWidth);
+        else
+            ds->DrawRectangle(rect, sb, strokeWidth);
+    }
+
+    s->pop();
+}
