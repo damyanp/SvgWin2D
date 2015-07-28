@@ -128,10 +128,13 @@ namespace TestSuite
 
             var ds = args.DrawingSession;
 
+            var color1 = Color.FromArgb(255, 254, 254, 254);
+            var color2 = Color.FromArgb(255, 250, 250, 250);
+
             Color[] twoByTwoChecker =
             {
-                Colors.LightGray, Colors.DarkGray,
-                Colors.DarkGray,  Colors.LightGray,
+                color1, color2,
+                color2, color1
             };
 
             var checker = new DpiCompensationEffect
