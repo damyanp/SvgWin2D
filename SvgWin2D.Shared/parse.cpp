@@ -162,8 +162,11 @@ std::unique_ptr<paint> parse_paint(IXmlNode^ element, Platform::String^ name)
 {
     auto attributeString = get_attribute(element, name);
 
-    if (!attributeString || attributeString == L"none")
+    if (!attributeString)
         return nullptr;
+
+    if (attributeString == "none")
+        return std::make_unique<paint>(paint_type::none, Colors::HotPink);
 
     std::wcmatch match;
     if (std::regex_match(attributeString->Data(), attributeString->Data() + attributeString->Length(), match, gHexColorRegex))
