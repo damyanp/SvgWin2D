@@ -141,31 +141,31 @@ length parse_coordinate(IXmlNode^ element, Platform::String^ name)
 }
 
 
-paint parse_paint(IXmlNode^ element, Platform::String^ name)
+std::unique_ptr<paint> parse_paint(IXmlNode^ element, Platform::String^ name)
 {
     auto attributeString = get_attribute(element, name);
 
-    if (attributeString == L"none")
-        return paint(paint_type::none, Color{});
+    if (!attributeString || attributeString == L"none")
+        return nullptr;
 
     // TODO: proper color parsing!
 
     if (attributeString == L"black")
-        return paint(paint_type::color, Colors::Black);
+        return std::make_unique<paint>(paint_type::color, Colors::Black);
 
     if (attributeString == L"green")
-        return paint(paint_type::color, Colors::Green);
+        return std::make_unique<paint>(paint_type::color, Colors::Green);
 
     if (attributeString == L"lime")
-        return paint(paint_type::color, Colors::Lime);
+        return std::make_unique<paint>(paint_type::color, Colors::Lime);
 
     if (attributeString == L"yellow")
-        return paint(paint_type::color, Colors::Yellow);
+        return std::make_unique<paint>(paint_type::color, Colors::Yellow);
 
     if (attributeString == L"blue")
-        return paint(paint_type::color, Colors::Blue);
+        return std::make_unique<paint>(paint_type::color, Colors::Blue);
 
-    return paint(paint_type::color, Colors::HotPink);
+    return std::make_unique<paint>(paint_type::color, Colors::HotPink);
 }
 
 

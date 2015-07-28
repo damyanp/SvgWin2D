@@ -1,6 +1,7 @@
 #pragma once
 
 #include "paint.h"
+#include "style.h"
 
 using namespace Microsoft::Graphics::Canvas;
 using namespace Microsoft::Graphics::Canvas::Brushes;
@@ -47,16 +48,16 @@ struct viewBox
 
 class element
 {
-    paint fillPaint_;
-    paint strokePaint_;
+    std::unique_ptr<paint> fillPaint_;
+    std::unique_ptr<paint> strokePaint_;
 
 public:
     element(IXmlNode^ node);
 
-    virtual void draw(CanvasDrawingSession^ ds) = 0;
+    virtual void draw(CanvasDrawingSession^ ds, inherited_style* s) = 0;
 
-    ICanvasBrush^ fillBrush(ICanvasResourceCreator^ resourceCreator);
-    ICanvasBrush^ strokeBrush(ICanvasResourceCreator^ resourceCreator);
+protected:
+    void apply_style(style* s);
 };
 
 typedef std::vector<std::unique_ptr<element>> element_vector;
@@ -68,7 +69,7 @@ class container_element : public element
 public:
     container_element(IXmlNode^ node);
 
-    virtual void draw(CanvasDrawingSession^ ds) override;
+    virtual void draw(CanvasDrawingSession^ ds, inherited_style* s) override;
 };
 
 
@@ -103,5 +104,5 @@ class circle : public element
 public:
     circle(IXmlNode^ node);
 
-    virtual void draw(CanvasDrawingSession^ ds) override;
+    virtual void draw(CanvasDrawingSession^ ds, inherited_style* s) override;
 };

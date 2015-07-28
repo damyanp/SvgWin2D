@@ -7,24 +7,27 @@ using namespace Windows::Foundation;
 using namespace Windows::UI;
 
 
-ICanvasBrush^ element::fillBrush(ICanvasResourceCreator^ resourceCreator)
+void element::apply_style(style* s)
 {
-    return fillPaint_.brush(resourceCreator);
+    if (fillPaint_)
+        s->set_fill(*fillPaint_);
+    if (strokePaint_)
+        s->set_stroke(*strokePaint_);
 }
 
 
-ICanvasBrush^ element::strokeBrush(ICanvasResourceCreator^ resourceCreator)
+void container_element::draw(CanvasDrawingSession^ ds, inherited_style* s)
 {
-    return strokePaint_.brush(resourceCreator);
-}
+    s->push();
 
+    apply_style(s->current());
 
-void container_element::draw(CanvasDrawingSession^ ds)
-{
     for (auto const& child : elements_)
     {
-        child->draw(ds);
+        child->draw(ds, s);
     }
+
+    s->pop();
 }
 
 
@@ -49,7 +52,9 @@ ICanvasImage^ svg::create_image(ICanvasResourceCreator^ resourceCreator, Size de
     auto content = ref new CanvasCommandList(resourceCreator);
     auto ds = content->CreateDrawingSession();
     ds->Clear(Colors::Transparent);
-    draw(ds);
+
+    draw(ds, std::make_unique<inherited_style>().get());
+
     delete ds;
 
     auto crop = ref new Effects::CropEffect();
@@ -64,13 +69,18 @@ ICanvasImage^ svg::create_image(ICanvasResourceCreator^ resourceCreator, Size de
 }
 
 
-void circle::draw(CanvasDrawingSession^ ds)
+void circle::draw(CanvasDrawingSession^ ds, inherited_style* s)
 {
-    auto fb = fillBrush(ds);
+    s->push();
+    apply_style(s->current());
+
+    auto fb = s->current()->fillBrush(ds);
     if (fb)
         ds->FillCircle(cx_.Number, cy_.Number, radius_.Number, fb);
 
-    auto sb = strokeBrush(ds);
+    auto sb = s->current()->strokeBrush(ds);
     if (sb)
         ds->DrawCircle(cx_.Number, cy_.Number, radius_.Number, sb);
+
+    s->pop();
 }
