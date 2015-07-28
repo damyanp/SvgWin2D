@@ -2,6 +2,7 @@
 
 using namespace Microsoft::Graphics::Canvas;
 using namespace Microsoft::Graphics::Canvas::Brushes;
+using namespace Windows::Data::Xml::Dom;
 using namespace Windows::Foundation;
 using namespace Windows::UI;
 
@@ -45,6 +46,8 @@ struct viewBox
 class element
 {
 public:
+    element(IXmlNode^ node);
+
     virtual void draw(CanvasDrawingSession^ ds) = 0;
 };
 
@@ -55,7 +58,7 @@ class container_element : public element
     element_vector elements_;
 
 public:
-    void add_child(std::unique_ptr<element>&& child);
+    container_element(IXmlNode^ node);
 
     virtual void draw(CanvasDrawingSession^ ds) override;
 };
@@ -68,11 +71,7 @@ class svg : public container_element
     length height_;
 
 public:
-    svg(std::unique_ptr<viewBox>&& viewBox, length width, length height)
-        : viewBox_(std::move(viewBox))
-        , width_(width)
-        , height_(height)
-    {}
+    svg(IXmlNode^ node);
 
     ICanvasImage^ create_image(ICanvasResourceCreator^ resourceCreator, Size destinationSize);
 };
@@ -83,6 +82,7 @@ class group : public container_element
     element_vector elements_;
 
 public:
+    group(IXmlNode^ node);
 };
 
 enum class paint_type
@@ -118,10 +118,7 @@ class shape : public element
     paint strokePaint_;
 
 protected:
-    shape(paint const& fillPaint, paint const& strokePaint)
-        : fillPaint_(fillPaint)
-        , strokePaint_(strokePaint)
-    {}
+    shape(IXmlNode^ node);
 
     ICanvasBrush^ fillBrush(ICanvasResourceCreator^ resourceCreator);
     ICanvasBrush^ strokeBrush(ICanvasResourceCreator^ resourceCreator);
@@ -135,12 +132,7 @@ class circle : public shape
     length radius_;
 
 public:
-    circle(paint const& fillPaint, paint const& strokePaint, length cx, length cy, length radius)
-        : shape(fillPaint, strokePaint)
-        , cx_(cx)
-        , cy_(cy)
-        , radius_(radius)
-    {}
+    circle(IXmlNode^ node);
 
     virtual void draw(CanvasDrawingSession^ ds) override;
 };

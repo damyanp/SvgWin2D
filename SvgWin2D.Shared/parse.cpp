@@ -169,58 +169,6 @@ paint parse_paint(IXmlNode^ element, Platform::String^ name)
 }
 
 
-static std::unique_ptr<element> parse_any_element(IXmlNode^ node);
-
-template<typename SVG>
-void add_children(SVG* svg, IXmlNode^ xml)
-{
-    for (auto const& childNode : xml->ChildNodes)
-    {
-        if (childNode->NodeType != NodeType::ElementNode)
-            continue;
-
-        auto childElement = parse_any_element(childNode);
-
-        if (childElement)
-            svg->add_child(std::move(childElement));
-    }
-}
-
-
-std::unique_ptr<svg> parse_svg(IXmlNode^ svgElement)
-{
-    auto svgNode = std::make_unique<svg>(
-        parse_viewBox(svgElement),
-        parse_width_or_height(svgElement, L"width"),
-        parse_width_or_height(svgElement, L"height"));
-
-    add_children(svgNode.get(), svgElement);
-
-    return svgNode;
-}
-
-
-std::unique_ptr<group> parse_g(IXmlNode^ node)
-{
-    auto g = std::make_unique<group>();
-
-    add_children(g.get(), node);
-
-    return g;
-}
-
-
-std::unique_ptr<circle> parse_circle(IXmlNode^ node)
-{
-    return std::make_unique<circle>(
-        parse_paint(node, L"fill"),
-        parse_paint(node, L"stroke"),
-        parse_coordinate(node, L"cx"),
-        parse_coordinate(node, L"cy"),
-        parse_coordinate(node, L"r"));
-}
-
-
 std::unique_ptr<element> parse_any_element(IXmlNode^ node)
 {
     auto fullName = node->NodeName;
@@ -237,11 +185,11 @@ std::unique_ptr<element> parse_any_element(IXmlNode^ node)
     auto name = dynamic_cast<Platform::String^>(node->LocalName);
 
     if (name == L"svg")
-        return parse_svg(node);
+        return std::make_unique<svg>(node);
     else if (name == L"g")
-        return parse_g(node);
+        return std::make_unique<group>(node);
     else if (name == L"circle")
-        return parse_circle(node);
+        return std::make_unique<circle>(node);
     else
         return nullptr;
 }
@@ -251,6 +199,63 @@ std::unique_ptr<element> parse_any_element(IXmlNode^ node)
 std::unique_ptr<svg> parse_svg(XmlDocument^ svgDocument)
 {
     auto svgElement = svgDocument->SelectSingleNodeNS("svg:svg", XMLNS_SVG);
-    return parse_svg(svgElement);
+    return std::make_unique<svg>(svgElement);
 }
 
+
+//
+// The various elements construct construct themselves from the XML nodes.
+//
+
+
+element::element(IXmlNode^ node)
+{
+}
+
+
+container_element::container_element(IXmlNode^ node)
+    : element(node)
+{
+    for (auto const& childNode : node->ChildNodes)
+    {
+        if (childNode->NodeType != NodeType::ElementNode)
+            continue;
+
+        auto childElement = parse_any_element(childNode);
+
+        if (childElement)
+            elements_.push_back(std::move(childElement));
+    }
+}
+
+
+svg::svg(IXmlNode^ node)
+    : container_element(node)
+    , viewBox_(parse_viewBox(node))
+    , width_(parse_width_or_height(node, L"width"))
+    , height_(parse_width_or_height(node, L"height"))
+{
+}
+
+
+group::group(IXmlNode^ node)
+    : container_element(node)
+{
+}
+
+
+shape::shape(IXmlNode^ node)
+    : element(node)
+    , fillPaint_(parse_paint(node, L"fill"))
+    , strokePaint_(parse_paint(node, L"stroke"))
+{
+}
+
+
+circle::circle(IXmlNode^ node)
+    : shape(node)
+    , cx_(parse_coordinate(node, L"cx"))
+    , cy_(parse_coordinate(node, L"cy"))
+    , radius_(parse_coordinate(node, L"r"))
+{
+}

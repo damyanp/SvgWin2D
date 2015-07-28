@@ -6,12 +6,6 @@ using namespace Microsoft::Graphics::Canvas;
 using namespace Windows::Foundation;
 using namespace Windows::UI;
 
-void container_element::add_child(std::unique_ptr<element>&& child)
-{
-    elements_.push_back(std::move(child));
-}
-
-
 void container_element::draw(CanvasDrawingSession^ ds)
 {
     for (auto const& child : elements_)
