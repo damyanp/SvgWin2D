@@ -250,6 +250,8 @@ std::unique_ptr<element> parse_any_element(IXmlNode^ node)
         return std::make_unique<rect>(node);
     else if (name == L"ellipse")
         return std::make_unique<ellipse>(node);
+    else if (name == L"line")
+        return std::make_unique<line>(node);
     else
         return nullptr;
 }
@@ -337,4 +339,13 @@ rect::rect(IXmlNode^ node)
 {
 }
 
+
+line::line(IXmlNode^ node)
+    : element(node)
+    , x1_(parse_coordinate(node, L"x1"))
+    , y1_(parse_coordinate(node, L"y1"))
+    , x2_(parse_coordinate(node, L"x2"))
+    , y2_(parse_coordinate(node, L"y2"))
+{
+}
 

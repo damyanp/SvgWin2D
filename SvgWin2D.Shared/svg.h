@@ -120,3 +120,18 @@ public:
 protected:
     virtual void draw_element(CanvasDrawingSession^ ds, inherited_style* s) override;
 };
+
+
+class line : public element
+{
+    length x1_;
+    length y1_;
+    length x2_;
+    length y2_;
+
+public:
+    line(IXmlNode^ node);
+
+protected:
+    virtual void draw_element(CanvasDrawingSession^ ds, inherited_style* s) override;
+};

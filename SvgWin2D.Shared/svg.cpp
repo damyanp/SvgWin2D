@@ -130,3 +130,15 @@ void rect::draw_element(CanvasDrawingSession^ ds, inherited_style* s)
             ds->DrawRectangle(rect, sb, strokeWidth);
     }
 }
+
+
+void line::draw_element(CanvasDrawingSession^ ds, inherited_style* s)
+{
+    auto sb = s->current()->strokeBrush(ds);
+    if (sb)
+    {
+        auto strokeWidth = s->current()->stroke_width();
+
+        ds->DrawLine(x1_.Number, y1_.Number, x2_.Number, y2_.Number, sb, strokeWidth);
+    }
+}
