@@ -42,6 +42,10 @@ namespace TestSuite
             var svgDocument = await XmlDocument.LoadFromUriAsync(new Uri(test.SvgUri));
             data.Drawing = await SvgDrawing.LoadAsync(device, svgDocument);
 
+            var description = svgDocument.SelectSingleNodeNS("//d:testDescription", "xmlns:d='http://www.w3.org/2000/02/svg/testsuite/description/'");
+            if (description != null)
+                data.Description = description.InnerText;
+
             return data;
         }
 
@@ -71,7 +75,8 @@ namespace TestSuite
         }
 
         public string Name { get { return test.Name; } }
-        public string Description { get { return "description"; } }
+        public string Description { get; set; }
+    
     }
 
     public class TestDisplayDesignData
