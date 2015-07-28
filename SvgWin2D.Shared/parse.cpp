@@ -141,12 +141,41 @@ length parse_coordinate(IXmlNode^ element, Platform::String^ name)
 }
 
 
+// hex colors are either #XXX or #XXXXXX where 'X' is a hex digit
+std::wregex gHexColorRegex(L"#([[:xdigit:]]{3}|[[:xdigit:]]{6})");
+
 std::unique_ptr<paint> parse_paint(IXmlNode^ element, Platform::String^ name)
 {
     auto attributeString = get_attribute(element, name);
 
     if (!attributeString || attributeString == L"none")
         return nullptr;
+
+    std::wcmatch match;
+    if (std::regex_match(attributeString->Data(), attributeString->Data() + attributeString->Length(), match, gHexColorRegex))
+    {
+        auto hexColor = match[1].str();
+        std::wstring rs, gs, bs;
+        if (hexColor.length() == 3)
+        {
+            rs.assign(hexColor.begin(), hexColor.begin()+1);
+            gs.assign(hexColor.begin()+1, hexColor.begin()+2);
+            bs.assign(hexColor.begin()+2, hexColor.begin()+3);
+        }
+        else
+        {
+            assert(hexColor.length() == 6);
+            rs.assign(hexColor.begin(), hexColor.begin()+2);
+            gs.assign(hexColor.begin()+2, hexColor.begin()+4);
+            bs.assign(hexColor.begin()+4, hexColor.begin()+6);
+        }
+        
+        uint8_t r = static_cast<uint8_t>(std::stoul(rs, nullptr, 16));
+        uint8_t g = static_cast<uint8_t>(std::stoul(gs, nullptr, 16));
+        uint8_t b = static_cast<uint8_t>(std::stoul(bs, nullptr, 16));
+
+        return std::make_unique<paint>(paint_type::color, Color{255, r, g, b});
+    }
 
     // TODO: proper color parsing!
 
