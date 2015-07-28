@@ -96,7 +96,12 @@ namespace TestSuite
             }
 
             // Filter the tests
-            tests = tests.Where(test => test.Name.StartsWith("shapes")).ToList();
+
+            Func<SvgTest, bool> testFilter = test => 
+                (test.Name.StartsWith("coords") && !test.Name.Contains("-dom-"))
+                || test.Name.StartsWith("shapes");
+
+            tests = tests.Where(testFilter).ToList();
 
             return tests;
         }
