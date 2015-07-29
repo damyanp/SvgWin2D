@@ -134,12 +134,13 @@ public:
     void CheckMatrix(float3x2 expectedMatrix, const wchar_t* string)
     {
         auto transform = transform_parser::parse(ref new Platform::String(string));
-        Assert::AreEqual(expectedMatrix.m11, transform.m11, (std::wstring(string) + L" -> m11").c_str());
-        Assert::AreEqual(expectedMatrix.m12, transform.m12, (std::wstring(string) + L" -> m12").c_str());
-        Assert::AreEqual(expectedMatrix.m21, transform.m21, (std::wstring(string) + L" -> m21").c_str());
-        Assert::AreEqual(expectedMatrix.m22, transform.m22, (std::wstring(string) + L" -> m22").c_str());
-        Assert::AreEqual(expectedMatrix.m31, transform.m31, (std::wstring(string) + L" -> m31").c_str());
-        Assert::AreEqual(expectedMatrix.m32, transform.m32, (std::wstring(string) + L" -> m32").c_str());
+        auto tolerance = 0.001f;
+        Assert::AreEqual(expectedMatrix.m11, transform.m11, tolerance, (std::wstring(string) + L" -> m11").c_str());
+        Assert::AreEqual(expectedMatrix.m12, transform.m12, tolerance, (std::wstring(string) + L" -> m12").c_str());
+        Assert::AreEqual(expectedMatrix.m21, transform.m21, tolerance, (std::wstring(string) + L" -> m21").c_str());
+        Assert::AreEqual(expectedMatrix.m22, transform.m22, tolerance, (std::wstring(string) + L" -> m22").c_str());
+        Assert::AreEqual(expectedMatrix.m31, transform.m31, tolerance, (std::wstring(string) + L" -> m31").c_str());
+        Assert::AreEqual(expectedMatrix.m32, transform.m32, tolerance, (std::wstring(string) + L" -> m32").c_str());
     }
 
     TEST_METHOD(Transform_Matrix)
@@ -200,6 +201,20 @@ public:
         CheckMatrix(make_float3x2_skew(0, 0), L"skewY(0)");
         CheckMatrix(make_float3x2_skew(0, XMConvertToRadians(45)), L"skewY(45)");
         CheckMatrix(make_float3x2_skew(0, XMConvertToRadians(-45)), L"skewY(-45)");
+    }
+
+
+    TEST_METHOD(Transform_Compound)
+    {
+        auto matrix =
+            make_float3x2_scale(0.8f)
+            * make_float3x2_skew(XMConvertToRadians(15), 0)
+            * make_float3x2_rotation(XMConvertToRadians(45))
+            * make_float3x2_translation(50, 50);
+            
+        CheckMatrix(matrix, L"translate(50, 50) rotate(45) skewX(15) scale(0.8)");
+        CheckMatrix(matrix, L"translate(50, 50)rotate(45)skewX(15)scale(0.8)");
+        CheckMatrix(matrix, L"translate(50, 50),rotate(45),skewX(15),scale(0.8)");
     }
 
 #pragma endregion

@@ -4,9 +4,6 @@
 
 // TODO: this whole file is horribly repetitive
 
-// TODO: figure out why 100.coords-transformattr-01-f.svg fails
-
-
 /*static*/
 std::wregex transform_parser::sTransformTokenRegex(
     L"[[:space:]]*"             // ignored whitespace
@@ -52,9 +49,15 @@ bool transform_parser::try_get_next(float3x2* transform)
     if (it_ == end)
         return false;
 
-    // at this point we're expecting a keyword
+    // at this point we're expecting a keyword or a comma
     auto keyword = it_->str();
     ++it_;
+
+    if (keyword == L",")
+    {
+        keyword = it_->str();
+        ++it_;
+    }
 
     if (keyword == L"matrix")
         return try_get_matrix(transform);
