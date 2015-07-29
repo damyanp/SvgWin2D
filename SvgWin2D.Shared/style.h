@@ -12,6 +12,7 @@
 
 class style
 {
+    paint color_;               // (used for paint_type::currentColor)
     paint fill_;
     paint stroke_;
     length strokeWidth_;
@@ -19,13 +20,19 @@ class style
 public:
     style();
 
-    void set_fill(paint value) { fill_ = value; }
-    void set_stroke(paint value) { stroke_ = value; }
-    void set_stroke_width(length value) { strokeWidth_ = value; }
+    void set(
+        std::unique_ptr<paint> const& color,
+        std::unique_ptr<paint> const& fill,
+        std::unique_ptr<paint> const& stroke,
+        std::unique_ptr<length> const& strokeWidth);
 
     ICanvasBrush^ fillBrush(ICanvasResourceCreator^ resourceCreator);
     ICanvasBrush^ strokeBrush(ICanvasResourceCreator^ resourceCreator);
     float stroke_width();
+
+private:
+    template<typename T>
+    void set(std::unique_ptr<T> const& value, T* field);
 };
 
 

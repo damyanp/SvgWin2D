@@ -11,7 +11,11 @@ using namespace Windows::UI;
 void element::draw(CanvasDrawingSession^ ds, inherited_style* s)
 {
     s->push();
-    apply_style(s->current());
+    s->current()->set(
+        color_,
+        fillPaint_,
+        strokePaint_,
+        strokeWidth_);
 
     auto oldTransform = ds->Transform;
     if (transform_)
@@ -21,17 +25,6 @@ void element::draw(CanvasDrawingSession^ ds, inherited_style* s)
 
     ds->Transform = oldTransform;
     s->pop();
-}
-
-
-void element::apply_style(style* s)
-{
-    if (fillPaint_)
-        s->set_fill(*fillPaint_);
-    if (strokePaint_)
-        s->set_stroke(*strokePaint_);
-    if (strokeWidth_)
-        s->set_stroke_width(*strokeWidth_);
 }
 
 

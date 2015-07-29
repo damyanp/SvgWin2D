@@ -179,8 +179,14 @@ std::unique_ptr<paint> parse_paint(IXmlNode^ element, Platform::String^ name)
     if (!attributeString)
         return nullptr;
 
-    if (attributeString == "none")
+    if (attributeString == L"none")
         return std::make_unique<paint>(paint_type::none, Colors::HotPink);
+
+    if (attributeString == L"currentColor")
+        return std::make_unique<paint>(paint_type::currentColor, Colors::HotPink);
+
+    if (attributeString == L"inherit")
+        return std::make_unique<paint>(paint_type::inherit, Colors::HotPink);
 
     auto stringBegin = attributeString->Data();
     auto stringEnd = stringBegin + attributeString->Length();
@@ -324,7 +330,8 @@ std::unique_ptr<svg> parse_svg(XmlDocument^ svgDocument)
 
 
 element::element(IXmlNode^ node)
-    : fillPaint_(parse_paint(node, L"fill"))
+    : color_(parse_paint(node, L"color"))
+    , fillPaint_(parse_paint(node, L"fill"))
     , strokePaint_(parse_paint(node, L"stroke"))
     , strokeWidth_(parse_stroke_width(node))
     , transform_(parse_transform(node))

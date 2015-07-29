@@ -2,6 +2,12 @@
 
 #include "colors.h"
 
+// TODO: suport for 'system' colors
+//
+// See http://www.w3.org/TR/2008/REC-CSS2-20080411/ui.html#system-colors
+// and http://www.w3.org/Graphics/SVG/Test/20110816/harness/htmlObjectApproved/color-prop-04-t.html
+
+
 using Windows::UI::Color;
 
 struct Entry
@@ -176,11 +182,13 @@ static Entry gColors[] =
     { L"yellowgreen"          , Color{ 255, 154, 205, 50 } }
 };
 
+
 bool ensure_colors_sorted()
 {
     std::sort(gColors, gColors + _countof(gColors));
     return true;
 }
+
 
 Color get_color_by_name(Platform::String^ name)
 {

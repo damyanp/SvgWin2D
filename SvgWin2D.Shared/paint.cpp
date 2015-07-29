@@ -2,7 +2,7 @@
 
 #include "paint.h"
 
-ICanvasBrush^ paint::brush(ICanvasResourceCreator^ resourceCreator)
+ICanvasBrush^ paint::brush(ICanvasResourceCreator^ resourceCreator) const
 {
     switch (type_)
     {

@@ -27,6 +27,7 @@ struct viewBox
 
 class element
 {
+    std::unique_ptr<paint> color_;
     std::unique_ptr<paint> fillPaint_;
     std::unique_ptr<paint> strokePaint_;
     std::unique_ptr<length> strokeWidth_;
@@ -39,9 +40,6 @@ public:
 
 protected:
     virtual void draw_element(CanvasDrawingSession^ ds, inherited_style* s) = 0;
-
-private:
-    void apply_style(style* s);
 };
 
 typedef std::vector<std::unique_ptr<element>> element_vector;

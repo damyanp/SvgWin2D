@@ -28,5 +28,7 @@ public:
         , fallbackType_(fallbackType)
     {}
 
-    ICanvasBrush^ brush(ICanvasResourceCreator^ resourceCreator);
+    paint_type type() const { return type_; }
+
+    ICanvasBrush^ brush(ICanvasResourceCreator^ resourceCreator) const;
 };
