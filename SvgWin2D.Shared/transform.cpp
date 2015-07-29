@@ -23,9 +23,26 @@ std::wregex transform_parser::sTransformTokenRegex(
 /*static*/
 std::regex_token_iterator<const wchar_t*> transform_parser::end;
 
+
+/*static*/
+float3x2 transform_parser::parse(Platform::String^ string)
+{
+    transform_parser parser(string);
+
+    auto transform = float3x2::identity();
+
+    float3x2 nextTransform;
+    while (parser.try_get_next(&nextTransform))
+    {
+        transform = nextTransform * transform;
+    }
+
+    return transform;
+}
+
+
 transform_parser::transform_parser(Platform::String^ string)
-    : string_(string)
-    , it_(string->Begin(), string->Begin() + string->Length(), sTransformTokenRegex, 1)
+    : it_(string->Begin(), string->Begin() + string->Length(), sTransformTokenRegex, 1)
 {
 }
 

@@ -4,19 +4,19 @@ using Windows::Foundation::Numerics::float3x2;
 
 class transform_parser
 {
-    Platform::String^ string_;
-
     std::regex_token_iterator<const wchar_t*> it_;
     static std::regex_token_iterator<const wchar_t*> end;
     
 public:
-    transform_parser(Platform::String^ string);
-
-    bool try_get_next(float3x2* transform);
+    static float3x2 parse(Platform::String^ string);
 
     static std::wregex sTransformTokenRegex;
 
 private:
+    transform_parser(Platform::String^ string);
+
+    bool try_get_next(float3x2* transform);
+
     bool expect(const wchar_t* token);
     bool peek(const wchar_t* token);
     bool next_number(float* n);

@@ -255,17 +255,7 @@ std::unique_ptr<float3x2> parse_transform(IXmlNode^ node)
     if (!str)
         return nullptr;
 
-    transform_parser parser(str);
-
-    auto transform = float3x2::identity();
-
-    float3x2 nextTransform;
-    while (parser.try_get_next(&nextTransform))
-    {
-        transform = nextTransform * transform;
-    }
-
-    return std::make_unique<float3x2>(transform);
+    return std::make_unique<float3x2>(transform_parser::parse(str));
 }
 
 

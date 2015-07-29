@@ -133,9 +133,7 @@ public:
 
     void CheckMatrix(float3x2 expectedMatrix, const wchar_t* string)
     {
-        transform_parser parser(ref new Platform::String(string));
-        float3x2 transform;
-        Assert::IsTrue(parser.try_get_next(&transform), (std::wstring(string) + L" -- try_get_next").c_str());
+        auto transform = transform_parser::parse(ref new Platform::String(string));
         Assert::AreEqual(expectedMatrix.m11, transform.m11, (std::wstring(string) + L" -> m11").c_str());
         Assert::AreEqual(expectedMatrix.m12, transform.m12, (std::wstring(string) + L" -> m12").c_str());
         Assert::AreEqual(expectedMatrix.m21, transform.m21, (std::wstring(string) + L" -> m21").c_str());
