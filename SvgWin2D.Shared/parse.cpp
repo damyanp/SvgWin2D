@@ -1,5 +1,6 @@
 #include "pch.h"
 
+#include "colors.h"
 #include "parse.h"
 #include "transform.h"
 
@@ -167,7 +168,9 @@ std::unique_ptr<length> parse_stroke_width(IXmlNode^ element)
 
 
 // hex colors are either #XXX or #XXXXXX where 'X' is a hex digit
-std::wregex gHexColorRegex(L"#([[:xdigit:]]{3}|[[:xdigit:]]{6})");
+std::wregex gHexColorRegex(L"#([[:xdigit:]]{3}|[[:xdigit:]]{6})", std::wregex::icase);
+std::wregex gIntColorRegex(L"rgb\\([[:space:]]*([0-9]+)[,[:space:]]*([0-9]+)[,[:space:]]*([0-9]+)[[:space:]]*\\)", std::wregex::icase);
+std::wregex gPercentColorRegex(L"rgb\\([[:space:]]*([0-9.]+)%[,[:space:]]*([0-9.]+)%[,[:space:]]*([0-9.]+)%[[:space:]]*\\)", std::wregex::icase);
 
 std::unique_ptr<paint> parse_paint(IXmlNode^ element, Platform::String^ name)
 {
@@ -179,16 +182,21 @@ std::unique_ptr<paint> parse_paint(IXmlNode^ element, Platform::String^ name)
     if (attributeString == "none")
         return std::make_unique<paint>(paint_type::none, Colors::HotPink);
 
+    auto stringBegin = attributeString->Data();
+    auto stringEnd = stringBegin + attributeString->Length();
+
     std::wcmatch match;
-    if (std::regex_match(attributeString->Data(), attributeString->Data() + attributeString->Length(), match, gHexColorRegex))
+
+    // Hex colors (#FFF or #FFFFFF)
+    if (std::regex_match(stringBegin, stringEnd, match, gHexColorRegex))
     {
         auto hexColor = match[1].str();
         std::wstring rs, gs, bs;
         if (hexColor.length() == 3)
         {
-            rs.assign(hexColor.begin(), hexColor.begin()+1);
-            gs.assign(hexColor.begin()+1, hexColor.begin()+2);
-            bs.assign(hexColor.begin()+2, hexColor.begin()+3);
+            rs.assign(2, hexColor[0]);
+            gs.assign(2, hexColor[1]);
+            bs.assign(2, hexColor[2]);
         }
         else
         {
@@ -198,31 +206,38 @@ std::unique_ptr<paint> parse_paint(IXmlNode^ element, Platform::String^ name)
             bs.assign(hexColor.begin()+4, hexColor.begin()+6);
         }
         
-        uint8_t r = static_cast<uint8_t>(std::stoul(rs, nullptr, 16));
-        uint8_t g = static_cast<uint8_t>(std::stoul(gs, nullptr, 16));
-        uint8_t b = static_cast<uint8_t>(std::stoul(bs, nullptr, 16));
+        auto r = static_cast<uint8_t>(std::stoul(rs, nullptr, 16));
+        auto g = static_cast<uint8_t>(std::stoul(gs, nullptr, 16));
+        auto b = static_cast<uint8_t>(std::stoul(bs, nullptr, 16));
 
-        return std::make_unique<paint>(paint_type::color, Color{255, r, g, b});
+        return std::make_unique<paint>(paint_type::color, Color{ 255, r, g, b });
+    }
+    
+    // Int rgb (rgb(1,2,3))
+    if (std::regex_match(stringBegin, stringEnd, match, gIntColorRegex))
+    {
+        auto r = static_cast<uint8_t>(std::stoul(match[1].str(), nullptr, 10));
+        auto g = static_cast<uint8_t>(std::stoul(match[2].str(), nullptr, 10));
+        auto b = static_cast<uint8_t>(std::stoul(match[3].str(), nullptr, 10));
+
+        return std::make_unique<paint>(paint_type::color, Color{ 255, r, g, b });
     }
 
-    // TODO: proper color parsing!
+    // Percentage rgb (rgb(15.1, 12.3, 99.9))
+    if (std::regex_match(stringBegin, stringEnd, match, gPercentColorRegex))
+    {
+        auto rPercent = _wtof(match[1].str().c_str());
+        auto gPercent = _wtof(match[2].str().c_str());
+        auto bPercent = _wtof(match[3].str().c_str());
 
-    if (attributeString == L"black")
-        return std::make_unique<paint>(paint_type::color, Colors::Black);
+        auto r = static_cast<uint8_t>(255.0 * std::min(100.0, std::max(0.0, rPercent)) / 100.0);
+        auto g = static_cast<uint8_t>(255.0 * std::min(100.0, std::max(0.0, gPercent)) / 100.0);
+        auto b = static_cast<uint8_t>(255.0 * std::min(100.0, std::max(0.0, bPercent)) / 100.0);
 
-    if (attributeString == L"green")
-        return std::make_unique<paint>(paint_type::color, Colors::Green);
-
-    if (attributeString == L"lime")
-        return std::make_unique<paint>(paint_type::color, Colors::Lime);
-
-    if (attributeString == L"yellow")
-        return std::make_unique<paint>(paint_type::color, Colors::Yellow);
-
-    if (attributeString == L"blue")
-        return std::make_unique<paint>(paint_type::color, Colors::Blue);
-
-    return std::make_unique<paint>(paint_type::color, Colors::HotPink);
+        return std::make_unique<paint>(paint_type::color, Color{ 255, r, g, b });
+    }
+    
+    return std::make_unique<paint>(paint_type::color, get_color_by_name(attributeString));
 }
 
 
