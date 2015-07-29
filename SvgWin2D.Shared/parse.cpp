@@ -1,6 +1,7 @@
 #include "pch.h"
 
 #include "parse.h"
+#include "transform.h"
 
 using namespace Windows::Data::Xml::Dom;
 
@@ -247,6 +248,27 @@ std::vector<point> parse_points(IXmlNode^ node)
 }
 
 
+std::unique_ptr<float3x2> parse_transform(IXmlNode^ node)
+{
+    auto str = get_attribute(node, L"transform");
+
+    if (!str)
+        return nullptr;
+
+    transform_parser parser(str);
+
+    auto transform = float3x2::identity();
+
+    float3x2 nextTransform;
+    while (parser.try_get_next(&nextTransform))
+    {
+        transform = nextTransform * transform;
+    }
+
+    return std::make_unique<float3x2>(transform);
+}
+
+
 std::unique_ptr<element> parse_any_element(IXmlNode^ node)
 {
     auto fullName = node->NodeName;
@@ -300,6 +322,7 @@ element::element(IXmlNode^ node)
     : fillPaint_(parse_paint(node, L"fill"))
     , strokePaint_(parse_paint(node, L"stroke"))
     , strokeWidth_(parse_stroke_width(node))
+    , transform_(parse_transform(node))
 {
 }
 

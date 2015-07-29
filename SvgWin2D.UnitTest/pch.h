@@ -13,5 +13,6 @@
 
 #include <collection.h>
 #include <ppltasks.h>
+#include <windowsnumerics.h>
 
 #include "UnitTestApp.xaml.h"

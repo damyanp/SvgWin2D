@@ -11,6 +11,8 @@ using namespace Windows::Data::Xml::Dom;
 using namespace Windows::Foundation;
 using namespace Windows::UI;
 
+using Windows::Foundation::Numerics::float3x2;
+
 struct viewBox
 {
     float X;
@@ -28,6 +30,7 @@ class element
     std::unique_ptr<paint> fillPaint_;
     std::unique_ptr<paint> strokePaint_;
     std::unique_ptr<length> strokeWidth_;
+    std::unique_ptr<float3x2> transform_;
 
 public:
     element(IXmlNode^ node);

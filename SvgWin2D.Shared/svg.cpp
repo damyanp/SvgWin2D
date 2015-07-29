@@ -12,7 +12,14 @@ void element::draw(CanvasDrawingSession^ ds, inherited_style* s)
 {
     s->push();
     apply_style(s->current());
+
+    auto oldTransform = ds->Transform;
+    if (transform_)
+        ds->Transform = *transform_ * ds->Transform;
+
     draw_element(ds, s);
+
+    ds->Transform = oldTransform;
     s->pop();
 }
 
