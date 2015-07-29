@@ -20,7 +20,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)parse.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)style.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)svg.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)transform.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)transform_parser.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)colors.cpp" />
@@ -28,6 +28,6 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)parse.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)style.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)svg.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)transform.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)transform_parser.cpp" />
   </ItemGroup>
 </Project>
