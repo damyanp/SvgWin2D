@@ -171,7 +171,7 @@ void polything::draw_polything(CanvasDrawingSession^ ds, inherited_style* s, Can
         }
     }
 
-    path->EndFigure(CanvasFigureLoop::Closed);
+    path->EndFigure(loop);
 
     auto geometry = CanvasGeometry::CreatePath(path);
 
