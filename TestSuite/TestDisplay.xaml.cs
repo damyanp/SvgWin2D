@@ -43,7 +43,7 @@ namespace TestSuite
 
             data.ReferencePng = await DownloadPng(device, new Uri(test.ReferencePngUri));
 
-            var svgDocument = await XmlDocument.LoadFromUriAsync(new Uri(test.SvgUri));
+            var svgDocument = await XmlDocument.LoadFromUriAsync(new Uri(test.SvgUri), new XmlLoadSettings() { ProhibitDtd = false });
             data.Drawing = await SvgDrawing.LoadAsync(device, svgDocument);
 
             var description = svgDocument.SelectSingleNodeNS("//d:testDescription", "xmlns:d='http://www.w3.org/2000/02/svg/testsuite/description/'");
