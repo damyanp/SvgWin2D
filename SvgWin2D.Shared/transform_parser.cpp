@@ -6,14 +6,14 @@
 
 /*static*/
 std::wregex transform_parser::sTransformTokenRegex(
-    L"[[:space:]]*"             // ignored whitespace
-    L"("                        // a token could be:
-    L"[,()]|"                   // one of , ( )
-    L"[+-]?[0-9]+\\.[0-9]*([eE][+-]?[0-9]+)?|" // a number
-    L"[+-]?[0-9]+|"             // an integer
+    L"[[:space:]]*"                              // ignored whitespace
+    L"("                                         // a token could be:
+    L"[,()]|"                                    // one of , ( )
+    L"[+-]?[0-9]+\\.[0-9]*([eE][+-]?[0-9]+)?|"   // a number
+    L"[+-]?[0-9]+|"                              // an integer
     L"matrix|translate|scale|rotate|skewX|skewY" // a keyword
-    L")"
-    L"[[:space:]]*"             // ignored whitespace
+    L")"                                         // 
+    L"[[:space:]]*"                              // ignored whitespace
     );
 
 
@@ -39,7 +39,7 @@ float3x2 transform_parser::parse(Platform::String^ string)
 
 
 transform_parser::transform_parser(Platform::String^ string)
-    : it_(string->Begin(), string->Begin() + string->Length(), sTransformTokenRegex, 1)
+    : it_(string->Begin(), string->End(), sTransformTokenRegex, 1)
 {
 }
 
