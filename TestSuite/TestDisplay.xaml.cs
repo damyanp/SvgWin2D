@@ -21,6 +21,7 @@ namespace TestSuite
 
         public CanvasBitmap ReferencePng { get; private set; }
         public SvgDrawing Drawing { get; private set; }
+        public ICanvasImage SvgImage { get; private set; }
 
         public static async Task<TestDisplayData> CreateAsync(SvgTest test)
         {
@@ -33,6 +34,7 @@ namespace TestSuite
             var svgFile = await CachedData.GetStorageFileAsync(new Uri(test.SvgUri));
             var svgDocument = await XmlDocument.LoadFromFileAsync(svgFile, new XmlLoadSettings() { ProhibitDtd = false });
             data.Drawing = await SvgDrawing.LoadAsync(device, svgDocument);
+            data.SvgImage = data.Drawing.Draw(new Size(480, 360));
 
             var description = svgDocument.SelectSingleNodeNS("//d:testDescription", "xmlns:d='http://www.w3.org/2000/02/svg/testsuite/description/'");
             if (description != null)
@@ -112,6 +114,7 @@ namespace TestSuite
         {
             svgCanvas.Invalidate();
             pngCanvas.Invalidate();
+            diffCanvas.Invalidate();
         }
 
         void SvgCanvas_Draw(CanvasControl sender, CanvasDrawEventArgs args)
@@ -124,8 +127,7 @@ namespace TestSuite
 
             ds.DrawImage(CreateCheckerBoard(sender), new Rect(0, 0, 480, 360), new Rect(0, 0, 480, 360));
 
-            var svgImage = data.Drawing.Draw(new Size(480, 360));
-            ds.DrawImage(svgImage, new Rect(0, 0, 480, 360), new Rect(0, 0, 480, 360));
+            ds.DrawImage(data.SvgImage, new Rect(0, 0, 480, 360), new Rect(0, 0, 480, 360));
         }
 
         void PngCanvas_Draw(CanvasControl sender, CanvasDrawEventArgs args)
@@ -138,6 +140,56 @@ namespace TestSuite
 
             ds.DrawImage(CreateCheckerBoard(sender), new Rect(0, 0, 480, 360), new Rect(0, 0, 480, 360));
             ds.DrawImage(data.ReferencePng, new Rect(0, 0, 480, 360), new Rect(0, 0, 480, 360));
+        }
+
+        void DiffCanvas_Draw(CanvasControl sender, CanvasDrawEventArgs args)
+        {
+            var ds = args.DrawingSession;
+
+            var data = DataContext as TestDisplayData;
+            if (data == null)
+                return;
+
+            var white = new ColorSourceEffect() { Color = Colors.White };
+
+            var refImg = new CompositeEffect() { Sources = { white, data.ReferencePng } };
+            var svgImg = new CompositeEffect() { Sources = { white, data.SvgImage } };
+
+            var blendA = new BlendEffect() { Background = data.SvgImage, Foreground = data.ReferencePng, Mode = BlendEffectMode.Difference };
+            var blendB = new BlendEffect() { Background = data.SvgImage, Foreground = data.ReferencePng, Mode = BlendEffectMode.Difference };
+
+            ICanvasImage display = new BlendEffect()
+            {
+                Background = blendA,
+                Foreground = blendB,
+                Mode = BlendEffectMode.Overlay
+            };
+
+            display = blendA;
+            /*
+            display = new MorphologyEffect()
+            {
+                Mode = MorphologyEffectMode.Erode,
+                Width = 4,
+                Height = 4,
+                Source = display
+            };
+
+            display = new MorphologyEffect()
+            {
+                Mode = MorphologyEffectMode.Dilate,
+                Width = 4,
+                Height = 4,
+                Source = display
+            };*/
+
+            display = new InvertEffect()
+            {
+                Source = display
+            };
+
+            ds.DrawImage(display, new Rect(0, 0, 480, 360), new Rect(0, 0, 480, 360));
+
         }
 
 
