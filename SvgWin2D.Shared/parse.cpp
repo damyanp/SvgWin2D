@@ -292,6 +292,66 @@ CanvasGeometry^ parse_path_data(ICanvasResourceCreator^ resourceCreator, IXmlNod
 }
 
 
+std::vector<std::wstring> parse_comma_separated_list(Platform::String^ str)
+{
+    static std::wregex entryRegex(
+        L"[[:space:]]*"         // ignore whitespace prefix
+        L",?"                   // ignore comma prefix
+        L"[[:space:]]*"         // 
+        L"(?:"                  // 
+        L"(?:\"([^\"]*)\")|"    // a quoted string
+        L"([^,]*[^,[:space:]])" // a normal string
+        L"[[:space:]]*"         // 
+        L")"
+        );
+
+    std::vector<std::wstring> entries;
+
+    typedef std::regex_iterator<wchar_t const*> regex_iterator;
+
+    for (regex_iterator it(str->Begin(), str->End(), entryRegex); it != regex_iterator(); ++it)
+    {
+        auto match = *it;
+        if (match[1].matched)
+            entries.push_back(match[1].str());
+        else if (match[2].matched)
+            entries.push_back(match[2].str());
+    }
+
+    return entries;
+}
+
+
+std::unique_ptr<font_family> parse_font_family(IXmlNode^ node)
+{
+    auto str = get_attribute(node, L"font-family");
+
+    if (!str)
+        return nullptr;
+
+    if (str == L"inherit")
+        return nullptr;
+
+    auto names = parse_comma_separated_list(str);
+
+    return std::make_unique<font_family>(std::move(names));
+}
+
+
+std::unique_ptr<font_size> parse_font_size(IXmlNode^ node)
+{
+    auto str = get_attribute(node, L"font-size");
+
+    if (!str)
+        return nullptr;
+
+    if (str == L"inherit")
+        return nullptr;
+
+    return std::make_unique<font_size>(str);
+}
+
+
 std::unique_ptr<element> parse_any_element(ICanvasResourceCreator^ resourceCreator, IXmlNode^ node)
 {
     auto fullName = node->NodeName;
@@ -325,6 +385,8 @@ std::unique_ptr<element> parse_any_element(ICanvasResourceCreator^ resourceCreat
         return std::make_unique<polygon>(node);
     else if (name == L"path")
         return std::make_unique<path>(resourceCreator, node);
+    else if (name == L"text")
+        return std::make_unique<text>(node);
     else
         return nullptr;
 }
@@ -349,6 +411,8 @@ element::element(IXmlNode^ node)
     , strokePaint_(parse_paint(node, L"stroke"))
     , strokeWidth_(parse_stroke_width(node))
     , transform_(parse_transform(node))
+    , fontFamily_(parse_font_family(node))
+    , fontSize_(parse_font_size(node))
 {
 }
 
@@ -448,5 +512,13 @@ path::path(ICanvasResourceCreator^ resourceCreator, IXmlNode^ node)
     : element(node)
     , geometry_(parse_path_data(resourceCreator, node))
 {
+}
 
+
+text::text(IXmlNode^ node)
+    : element(node)
+    , x_(parse_coordinate(node, L"x"))
+    , y_(parse_coordinate(node, L"y"))
+    , text_(node->InnerText)
+{
 }

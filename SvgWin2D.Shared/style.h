@@ -1,5 +1,6 @@
 #pragma once
 
+#include "font.h"
 #include "length.h"
 #include "paint.h"
 
@@ -16,6 +17,8 @@ class style
     paint fill_;
     paint stroke_;
     length strokeWidth_;
+    font_family fontFamily_;
+    font_size fontSize_;
 
 public:
     style();
@@ -24,11 +27,14 @@ public:
         std::unique_ptr<paint> const& color,
         std::unique_ptr<paint> const& fill,
         std::unique_ptr<paint> const& stroke,
-        std::unique_ptr<length> const& strokeWidth);
+        std::unique_ptr<length> const& strokeWidth,
+        std::unique_ptr<font_family> const& fontFamily,
+        std::unique_ptr<font_size> const& fontSize);
 
     ICanvasBrush^ fillBrush(ICanvasResourceCreator^ resourceCreator);
     ICanvasBrush^ strokeBrush(ICanvasResourceCreator^ resourceCreator);
     float stroke_width();
+    CanvasTextFormat^ text_format();
 
 private:
     template<typename T>

@@ -365,8 +365,32 @@ public:
             L"EndFigure(closed) "
             );
     }
+#pragma endregion
+#pragma region(ParseCommaSeparatedList)
 
+    void CheckCommaSeparatedList(wchar_t const* src, std::initializer_list<wchar_t const*> expectedList)
+    {
+        std::vector<std::wstring> expected(expectedList.begin(), expectedList.end());
 
+        auto actual = parse_comma_separated_list(ref new Platform::String(src));
 
+        for (size_t i = 0; i < expected.size(); ++i)
+        {
+            if (actual.size() <= i)
+            {
+                Assert::AreEqual(expected.size(), actual.size(), (std::wstring(src) + L" (list sizes should match)").c_str());
+            }
+
+            Assert::AreEqual(expected[i], actual[i]);
+        }
+    }
+
+    TEST_METHOD(ParseCommaSeparatedList)
+    {
+        CheckCommaSeparatedList(L"a,b,c,d", {L"a", L"b", L"c", L"d"});
+        CheckCommaSeparatedList(L"   a   ,   b    ,   c   ,    d   ",  {L"a", L"b", L"c", L"d"});
+        CheckCommaSeparatedList(L"\"a\",\"b\",c,\"d\"   ", { L"a", L"b", L"c", L"d" });
+        CheckCommaSeparatedList(L"\"a b\",c", { L"a b", L"c" });
+    }
 #pragma endregion
 };

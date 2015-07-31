@@ -1,5 +1,6 @@
 #pragma once
 
+#include "font.h"
 #include "length.h"
 #include "paint.h"
 #include "style.h"
@@ -32,6 +33,8 @@ class element
     std::unique_ptr<paint> strokePaint_;
     std::unique_ptr<length> strokeWidth_;
     std::unique_ptr<float3x2> transform_;
+    std::unique_ptr<font_family> fontFamily_;
+    std::unique_ptr<font_size> fontSize_;
 
 public:
     element(IXmlNode^ node);
@@ -180,6 +183,20 @@ class path : public element
 
 public:
     path(ICanvasResourceCreator^ resourceCreator, IXmlNode^ node);
+
+protected:
+    virtual void draw_element(CanvasDrawingSession^ ds, inherited_style* s) override;
+};
+
+
+class text : public element
+{
+    length x_;
+    length y_;
+    Platform::String^ text_;
+
+public:
+    text(IXmlNode^ node);
 
 protected:
     virtual void draw_element(CanvasDrawingSession^ ds, inherited_style* s) override;

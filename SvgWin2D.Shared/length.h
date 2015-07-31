@@ -23,5 +23,15 @@ struct length
     {
         return Unit == other.Unit && Number == other.Number;
     }
+
+    length operator*(float n) const
+    {
+        return length{ Number * n, Unit };
+    }
+
+    length operator/(float n) const
+    {
+        return length{ Number / n, Unit };
+    }
 };
 

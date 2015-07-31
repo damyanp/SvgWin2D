@@ -15,6 +15,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)colors.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)font.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)length.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)paint.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)parse.h" />
@@ -25,6 +26,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)colors.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)font.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)paint.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)parse.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)path_parser.cpp" />

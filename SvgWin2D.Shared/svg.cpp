@@ -4,6 +4,7 @@
 
 using namespace Microsoft::Graphics::Canvas;
 using namespace Microsoft::Graphics::Canvas::Geometry;
+using namespace Microsoft::Graphics::Canvas::Text;
 using namespace Windows::Foundation;
 using namespace Windows::UI;
 
@@ -15,7 +16,9 @@ void element::draw(CanvasDrawingSession^ ds, inherited_style* s)
         color_,
         fillPaint_,
         strokePaint_,
-        strokeWidth_);
+        strokeWidth_,
+        fontFamily_,
+        fontSize_);
 
     auto oldTransform = ds->Transform;
     if (transform_)
@@ -212,5 +215,15 @@ void path::draw_element(CanvasDrawingSession^ ds, inherited_style* s)
         auto strokeStyle = ref new CanvasStrokeStyle();
         strokeStyle->LineJoin = CanvasLineJoin::MiterOrBevel;
         ds->DrawGeometry(geometry_, sb, strokeWidth, strokeStyle);
+    }
+}
+
+
+void text::draw_element(CanvasDrawingSession^ ds, inherited_style* s)
+{
+    auto fb = s->current()->fillBrush(ds);
+    if (fb)
+    {
+        ds->DrawText(text_, x_.Number, y_.Number, fb, s->current()->text_format());
     }
 }
