@@ -24,8 +24,6 @@ using Windows.UI.Xaml.Navigation;
 using Windows.Graphics.Effects;
 
 
-// The User Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234236
-
 namespace TestSuite
 {
     class TestDisplayData
@@ -43,7 +41,8 @@ namespace TestSuite
 
             data.ReferencePng = await DownloadPng(device, new Uri(test.ReferencePngUri));
 
-            var svgDocument = await XmlDocument.LoadFromUriAsync(new Uri(test.SvgUri), new XmlLoadSettings() { ProhibitDtd = false });
+            var svgFile = await CachedData.GetStorageFileAsync(new Uri(test.SvgUri));
+            var svgDocument = await XmlDocument.LoadFromFileAsync(svgFile, new XmlLoadSettings() { ProhibitDtd = false });
             data.Drawing = await SvgDrawing.LoadAsync(device, svgDocument);
 
             var description = svgDocument.SelectSingleNodeNS("//d:testDescription", "xmlns:d='http://www.w3.org/2000/02/svg/testsuite/description/'");
@@ -57,7 +56,7 @@ namespace TestSuite
         {
             try
             {
-                return await CanvasBitmap.LoadAsync(device, uri);
+                return await CanvasBitmap.LoadAsync(device, await CachedData.GetRandomAccessStreamAsync(uri));
             }
             catch (FileNotFoundException)
             {
