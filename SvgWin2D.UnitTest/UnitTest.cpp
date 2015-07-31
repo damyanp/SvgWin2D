@@ -2,7 +2,10 @@
 #include "CppUnitTest.h"
 
 #include "parse.h"
+#include "path_parser.h"
 #include "transform_parser.h"
+
+#include "CanvasPathToString.h"
 
 using Windows::Foundation::Numerics::make_float3x2_translation;
 using Windows::Foundation::Numerics::make_float3x2_scale;
@@ -216,6 +219,154 @@ public:
         CheckMatrix(matrix, L"translate(50, 50)rotate(45)skewX(15)scale(0.8)");
         CheckMatrix(matrix, L"translate(50, 50),rotate(45),skewX(15),scale(0.8)");
     }
+
+#pragma endregion
+#pragma region(Path)
+    TEST_METHOD(Path_TokenizeRegex)
+    {
+        Platform::String^ s(L"M 100 101 L 202 203 M104 105L206 -207 M 0.6.5");
+
+        std::regex_token_iterator<const wchar_t*> it(s->Begin(), s->Begin() + s->Length(), path_parser::sPathTokenRegex, 1);
+
+#define E(T) Assert::AreEqual(T, it->str().c_str()); ++it;
+
+        E(L"M");
+        E(L"100");
+        E(L"101");
+        E(L"L");
+        E(L"202");
+        E(L"203");
+        E(L"M");
+        E(L"104");
+        E(L"105");
+        E(L"L");
+        E(L"206");
+        E(L"-207");
+        E(L"M");
+        E(L"0.6");
+        E(L".5");
+
+#undef E
+    }
+
+    void CheckPath(wchar_t const* path, wchar_t const* expected)
+    {
+        auto device = CanvasDevice::GetSharedDevice(true);
+        auto geom = path_parser::parse(device, ref new Platform::String(path));
+        auto receiver = ref new CanvasPathToString();
+        geom->SendPathTo(receiver);
+
+        Assert::AreEqual(expected, receiver->str().c_str());
+    }
+
+    TEST_METHOD(Path_MoveTo)
+    {
+        CheckPath(L"M1,2 3,4 5,6", L"BeginFigure(1, 2) AddLine(3, 4) AddLine(5, 6) EndFigure(open) ");
+    }
+
+    TEST_METHOD(Path_StraightLines_Absolute)
+    {
+        // from http://www.w3.org/Graphics/SVG/Test/20110816/svg/paths-data-04-t.svg
+        CheckPath(L" M   62.00000   56.00000    L  113.96152  146.00000   L   10.03848  146.00000    L   62.00000   56.00000   Z    M   62.00000  71.00000   L  100.97114  138.50000   L   23.02886  138.50000   L   62.00000  71.00000   Z  ",
+            L"BeginFigure(62, 56) "
+            L"AddLine(113.962, 146) "
+            L"AddLine(10.0385, 146) "
+            L"AddLine(62, 56) "
+            L"EndFigure(closed) "
+            L"BeginFigure(62, 71) "
+            L"AddLine(100.971, 138.5) "
+            L"AddLine(23.0289, 138.5) "
+            L"AddLine(62, 71) "
+            L"EndFigure(closed) "
+            );
+    }
+
+    TEST_METHOD(Path_StraightLines_Relative)
+    {
+        // from http://www.w3.org/Graphics/SVG/Test/20110816/svg/paths-data-05-t.svg
+        CheckPath(L"m   62.00000  190.00000    l   51.96152   90.00000   l -103.92304    0.00000    l   51.96152  -90.00000   z    m    0.00000   15.00000   l   38.97114   67.50000   l  -77.91228    0.00000   l   38.97114  -67.50000   z  ",
+            L"BeginFigure(62, 190) "
+            L"AddLine(113.962, 280) "
+            L"AddLine(10.0385, 280) "
+            L"AddLine(62, 190) "
+            L"EndFigure(closed) "
+            L"BeginFigure(62, 205) "
+            L"AddLine(100.971, 272.5) "
+            L"AddLine(23.0589, 272.5) "
+            L"AddLine(62.03, 205) "
+            L"EndFigure(closed) "
+            );
+    }
+
+    TEST_METHOD(Path_StraightLines_Relative_Implied_L)
+    {
+        // from http://www.w3.org/Graphics/SVG/Test/20110816/svg/paths-data-09-t.svg
+
+        CheckPath(L"m 62.00000 190.00000    51.96152   90.00000   -103.92304    0.00000    51.96152  -90.00000   z    m 0.00000   15.00000   38.97114   67.50000   -77.91228    0.00000   38.97114  -67.50000   z",
+            L"BeginFigure(62, 190) "
+            L"AddLine(113.962, 280) "
+            L"AddLine(10.0385, 280) "
+            L"AddLine(62, 190) "
+            L"EndFigure(closed) "
+            L"BeginFigure(62, 205) "
+            L"AddLine(100.971, 272.5) "
+            L"AddLine(23.0589, 272.5) "
+            L"AddLine(62.03, 205) "
+            L"EndFigure(closed) ");
+    }
+
+    TEST_METHOD(Path_StraightLines_Relative_m_l)
+    {
+        // from http://www.w3.org/Graphics/SVG/Test/20110816/svg/paths-data-10-t.svg
+        CheckPath(L"m 100 0 l 0 80 -100 -40 100 -40",
+            L"BeginFigure(100, 0) "
+            L"AddLine(100, 80) "
+            L"AddLine(0, 40) "
+            L"AddLine(100, 0) "
+            L"EndFigure(open) ");
+    }
+
+    TEST_METHOD(Path_ParserEdgeCases)
+    {
+        // from http://www.w3.org/Graphics/SVG/Test/20110816/svg/paths-data-18-f.svg
+        CheckPath(L"M 20 100 H 40#90",
+            L"BeginFigure(20, 100) "
+            L"AddLine(40, 100) "
+            L"EndFigure(open) ");
+
+        CheckPath(L"M 20 120 H 40.5 0.6",
+            L"BeginFigure(20, 120) "
+            L"AddLine(40.5, 120) "
+            L"AddLine(0.6, 120) "
+            L"EndFigure(open) ");
+
+        CheckPath(L"M 20 120 H 40.5.6",
+            L"BeginFigure(20, 120) "
+            L"AddLine(40.5, 120) "
+            L"AddLine(0.6, 120) "
+            L"EndFigure(open) ");
+
+        CheckPath(L"M 20 140 h 10-20",
+            L"BeginFigure(20, 140) "
+            L"AddLine(30, 140) "
+            L"AddLine(10, 140) "
+            L"EndFigure(open) ");
+    }
+
+    TEST_METHOD(Path_CloseResetsCurrentPointToBeginningOfPath)
+    {
+        // from http://www.w3.org/Graphics/SVG/Test/20110816/svg/paths-data-02-t.svg
+        CheckPath(L"M372 130Q272 50 422 10zm70 0q50-150-80-90z",
+            L"BeginFigure(372, 130) "
+            L"AddQuadraticBezier(272, 50 422, 10) "
+            L"EndFigure(closed) "
+            L"BeginFigure(442, 130) "
+            L"AddQuadraticBezier(492, -20 362, 40) "
+            L"EndFigure(closed) "
+            );
+    }
+
+
 
 #pragma endregion
 };

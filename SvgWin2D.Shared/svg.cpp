@@ -147,6 +147,8 @@ void line::draw_element(CanvasDrawingSession^ ds, inherited_style* s)
 
 void polything::draw_polything(CanvasDrawingSession^ ds, inherited_style* s, CanvasFigureLoop loop)
 {
+    // TODO: now that path builds the geometry up during parsing, maybe polything should too?
+
     auto path = ref new CanvasPathBuilder(ds);
 
     bool first = true;
@@ -192,4 +194,23 @@ void polyline::draw_element(CanvasDrawingSession^ ds, inherited_style* s)
 void polygon::draw_element(CanvasDrawingSession^ ds, inherited_style* s)
 {
     draw_polything(ds, s, CanvasFigureLoop::Closed);
+}
+
+
+void path::draw_element(CanvasDrawingSession^ ds, inherited_style* s)
+{
+    auto fb = s->current()->fillBrush(ds);
+    if (fb)
+    {
+        ds->FillGeometry(geometry_, fb);
+    }
+
+    auto sb = s->current()->strokeBrush(ds);
+    if (sb)
+    {
+        auto strokeWidth = s->current()->stroke_width();
+        auto strokeStyle = ref new CanvasStrokeStyle();
+        strokeStyle->LineJoin = CanvasLineJoin::MiterOrBevel;
+        ds->DrawGeometry(geometry_, sb, strokeWidth, strokeStyle);
+    }
 }

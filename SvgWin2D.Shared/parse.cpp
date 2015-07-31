@@ -2,6 +2,7 @@
 
 #include "colors.h"
 #include "parse.h"
+#include "path_parser.h"
 #include "transform_parser.h"
 
 using namespace Windows::Data::Xml::Dom;
@@ -280,7 +281,18 @@ std::unique_ptr<float3x2> parse_transform(IXmlNode^ node)
 }
 
 
-std::unique_ptr<element> parse_any_element(IXmlNode^ node)
+CanvasGeometry^ parse_path_data(ICanvasResourceCreator^ resourceCreator, IXmlNode^ node)
+{
+    auto str = get_attribute(node, L"d");
+
+    if (!str)
+        return nullptr;
+
+    return path_parser::parse(resourceCreator, str);
+}
+
+
+std::unique_ptr<element> parse_any_element(ICanvasResourceCreator^ resourceCreator, IXmlNode^ node)
 {
     auto fullName = node->NodeName;
     auto localName = node->LocalName;
@@ -296,9 +308,9 @@ std::unique_ptr<element> parse_any_element(IXmlNode^ node)
     auto name = dynamic_cast<Platform::String^>(node->LocalName);
 
     if (name == L"svg")
-        return std::make_unique<svg>(node);
+        return std::make_unique<svg>(resourceCreator, node);
     else if (name == L"g")
-        return std::make_unique<group>(node);
+        return std::make_unique<group>(resourceCreator, node);
     else if (name == L"circle")
         return std::make_unique<circle>(node);
     else if (name == L"rect")
@@ -311,16 +323,18 @@ std::unique_ptr<element> parse_any_element(IXmlNode^ node)
         return std::make_unique<polyline>(node);
     else if (name == L"polygon")
         return std::make_unique<polygon>(node);
+    else if (name == L"path")
+        return std::make_unique<path>(resourceCreator, node);
     else
         return nullptr;
 }
 
 
 
-std::unique_ptr<svg> parse_svg(XmlDocument^ svgDocument)
+std::unique_ptr<svg> parse_svg(ICanvasResourceCreator^ resourceCreator, XmlDocument^ svgDocument)
 {
     auto svgElement = svgDocument->SelectSingleNodeNS("svg:svg", XMLNS_SVG);
-    return std::make_unique<svg>(svgElement);
+    return std::make_unique<svg>(resourceCreator, svgElement);
 }
 
 
@@ -339,7 +353,7 @@ element::element(IXmlNode^ node)
 }
 
 
-container_element::container_element(IXmlNode^ node)
+container_element::container_element(ICanvasResourceCreator^ resourceCreator, IXmlNode^ node)
     : element(node)
 {
     for (auto const& childNode : node->ChildNodes)
@@ -347,7 +361,7 @@ container_element::container_element(IXmlNode^ node)
         if (childNode->NodeType != NodeType::ElementNode)
             continue;
 
-        auto childElement = parse_any_element(childNode);
+        auto childElement = parse_any_element(resourceCreator, childNode);
 
         if (childElement)
             elements_.push_back(std::move(childElement));
@@ -355,8 +369,8 @@ container_element::container_element(IXmlNode^ node)
 }
 
 
-svg::svg(IXmlNode^ node)
-    : container_element(node)
+svg::svg(ICanvasResourceCreator^ resourceCreator, IXmlNode^ node)
+    : container_element(resourceCreator, node)
     , viewBox_(parse_viewBox(node))
     , width_(parse_width_or_height(node, L"width"))
     , height_(parse_width_or_height(node, L"height"))
@@ -364,8 +378,8 @@ svg::svg(IXmlNode^ node)
 }
 
 
-group::group(IXmlNode^ node)
-    : container_element(node)
+group::group(ICanvasResourceCreator^ resourceCreator, IXmlNode^ node)
+    : container_element(resourceCreator, node)
 {
 }
 
@@ -429,3 +443,10 @@ polygon::polygon(IXmlNode^ node)
 {
 }
 
+
+path::path(ICanvasResourceCreator^ resourceCreator, IXmlNode^ node)
+    : element(node)
+    , geometry_(parse_path_data(resourceCreator, node))
+{
+
+}

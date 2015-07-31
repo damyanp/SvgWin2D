@@ -18,6 +18,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)length.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)paint.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)parse.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)path_parser.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)style.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)svg.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)transform_parser.h" />
@@ -26,6 +27,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)colors.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)paint.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)parse.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)path_parser.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)style.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)svg.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)transform_parser.cpp" />

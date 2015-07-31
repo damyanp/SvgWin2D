@@ -3,6 +3,7 @@
 #define NOMINMAX 1
 
 #include <assert.h>
+#include <cwctype>
 #include <regex>
 #include <stack>
 

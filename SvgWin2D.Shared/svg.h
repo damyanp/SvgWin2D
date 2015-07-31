@@ -49,7 +49,7 @@ class container_element : public element
     element_vector elements_;
 
 public:
-    container_element(IXmlNode^ node);
+    container_element(ICanvasResourceCreator^ resourceCreator, IXmlNode^ node);
 
 protected:
     virtual void draw_element(CanvasDrawingSession^ ds, inherited_style* s) override;
@@ -63,7 +63,7 @@ class svg : public container_element
     length height_;
 
 public:
-    svg(IXmlNode^ node);
+    svg(ICanvasResourceCreator^ resourceCreator, IXmlNode^ node);
 
     ICanvasImage^ create_image(ICanvasResourceCreator^ resourceCreator, Size destinationSize);
 };
@@ -74,7 +74,7 @@ class group : public container_element
     element_vector elements_;
 
 public:
-    group(IXmlNode^ node);
+    group(ICanvasResourceCreator^ resourceCreator, IXmlNode^ node);
 };
 
 
@@ -168,6 +168,18 @@ class polygon : public polything
 {
 public:
     polygon(IXmlNode^ node);
+
+protected:
+    virtual void draw_element(CanvasDrawingSession^ ds, inherited_style* s) override;
+};
+
+
+class path : public element
+{
+    CanvasGeometry^ geometry_;
+
+public:
+    path(ICanvasResourceCreator^ resourceCreator, IXmlNode^ node);
 
 protected:
     virtual void draw_element(CanvasDrawingSession^ ds, inherited_style* s) override;

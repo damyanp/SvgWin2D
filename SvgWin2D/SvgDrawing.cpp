@@ -15,7 +15,7 @@ IAsyncOperation<SvgDrawing^>^ SvgDrawing::LoadAsync(ICanvasResourceCreator^ reso
 
 SvgDrawing^ SvgDrawing::Load(ICanvasResourceCreator^ resourceCreator, XmlDocument^ svgDocument)
 {
-    return ref new SvgDrawing(resourceCreator, parse_svg(svgDocument));
+    return ref new SvgDrawing(resourceCreator, parse_svg(resourceCreator, svgDocument));
 }
 
 
