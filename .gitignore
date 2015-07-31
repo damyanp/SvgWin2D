@@ -3,6 +3,7 @@ Release/
 ipch/
 packages/
 AppPackages/
+Generated Files/
 *.opensdf
 *.sdf
 *.suo
