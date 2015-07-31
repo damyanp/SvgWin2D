@@ -1,27 +1,16 @@
 ﻿using Microsoft.Graphics.Canvas;
 using Microsoft.Graphics.Canvas.Effects;
-using Microsoft.Graphics.Canvas.Text;
 using Microsoft.Graphics.Canvas.UI.Xaml;
 using SvgWin2D;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Numerics;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.Data.Xml.Dom;
 using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
-using Windows.Graphics.Effects;
 
 
 namespace TestSuite
@@ -110,7 +99,7 @@ namespace TestSuite
                 return;
 
             instance.DataContext = await TestDisplayData.CreateAsync((SvgTest)e.NewValue);
-            instance.canvas.Invalidate();
+            instance.Invalidate();
         }
 
         public TestDisplay()
@@ -119,14 +108,41 @@ namespace TestSuite
             this.InitializeComponent();           
         }
 
-        void CanvasControl_Draw(CanvasControl sender, CanvasDrawEventArgs args)
+        void Invalidate()
         {
+            svgCanvas.Invalidate();
+            pngCanvas.Invalidate();
+        }
+
+        void SvgCanvas_Draw(CanvasControl sender, CanvasDrawEventArgs args)
+        {
+            var ds = args.DrawingSession;
+
             var data = DataContext as TestDisplayData;
             if (data == null)
                 return;
 
+            ds.DrawImage(CreateCheckerBoard(sender), new Rect(0, 0, 480, 360), new Rect(0, 0, 480, 360));
+
+            var svgImage = data.Drawing.Draw(new Size(480, 360));
+            ds.DrawImage(svgImage, new Rect(0, 0, 480, 360), new Rect(0, 0, 480, 360));
+        }
+
+        void PngCanvas_Draw(CanvasControl sender, CanvasDrawEventArgs args)
+        {
             var ds = args.DrawingSession;
 
+            var data = DataContext as TestDisplayData;
+            if (data == null)
+                return;
+
+            ds.DrawImage(CreateCheckerBoard(sender), new Rect(0, 0, 480, 360), new Rect(0, 0, 480, 360));
+            ds.DrawImage(data.ReferencePng, new Rect(0, 0, 480, 360), new Rect(0, 0, 480, 360));
+        }
+
+
+        ICanvasImage CreateCheckerBoard(CanvasControl control)
+        {
             var color1 = Color.FromArgb(255, 254, 254, 254);
             var color2 = Color.FromArgb(255, 250, 250, 250);
 
@@ -142,7 +158,7 @@ namespace TestSuite
                 {
                     Source = new BorderEffect
                     {
-                        Source = CanvasBitmap.CreateFromColors(canvas, twoByTwoChecker, 2, 2),
+                        Source = CanvasBitmap.CreateFromColors(control, twoByTwoChecker, 2, 2),
                         ExtendX = CanvasEdgeBehavior.Wrap,
                         ExtendY = CanvasEdgeBehavior.Wrap
                     },
@@ -151,13 +167,7 @@ namespace TestSuite
                 }
             };
 
-            var svgImage = data.Drawing.Draw(new Size(480, 360));
-
-            ds.DrawImage(checker, new Rect(0, 0, 480, 360), new Rect(0, 0, 480, 360));
-            ds.DrawImage(svgImage, new Rect(0, 0, 480, 360), new Rect(0, 0, 480, 360));
-
-            ds.DrawImage(checker, new Rect(500, 0, 480, 360), new Rect(0, 0, 480, 360));
-            ds.DrawImage(data.ReferencePng, new Rect(500, 0, 480, 360), new Rect(0, 0, 480, 360));
+            return checker;
         }
     }
 }

@@ -7,8 +7,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:win2d="using:Microsoft.Graphics.Canvas.UI.Xaml"
     mc:Ignorable="d"
-    d:DesignHeight="300"
-    d:DesignWidth="400"
+    d:DesignHeight="400"
+    d:DesignWidth="500"
     d:DataContext="{d:DesignInstance IsDesignTimeCreatable=True, Type=local:TestDisplayDesignData}">
 
     <Grid>
@@ -18,12 +18,25 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <StackPanel Grid.Row="0">
-                <TextBlock Style="{ThemeResource TitleTextBlockStyle}" Text="{Binding Name}" />
-                <TextBlock Style="{ThemeResource BodyTextBlockStyle}" Text="{Binding Description}" />
-            </StackPanel>
-            
-            <win2d:CanvasControl x:Name="canvas" Grid.Row="1" Draw="CanvasControl_Draw" />
+            <TextBlock Grid.Row="0" Style="{ThemeResource TitleTextBlockStyle}" Text="{Binding Name}" />
+
+            <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>                        
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    
+                    <win2d:CanvasControl x:Name="svgCanvas" Grid.Column="0" Grid.Row="0" Draw="SvgCanvas_Draw" Width="480" Height="360" Margin="10"/>
+                    <win2d:CanvasControl x:Name="pngCanvas" Grid.Column="1" Grid.Row="0" Draw="PngCanvas_Draw" Width="480" Height="360" Margin="10"/>
+                    
+                    <TextBlock Grid.Row="1" Grid.ColumnSpan="2" Style="{ThemeResource BodyTextBlockStyle}" Text="{Binding Description}" MaxWidth="720" />
+                </Grid>
+            </ScrollViewer>
         </Grid>
 
     </Grid>
