@@ -101,7 +101,8 @@ namespace TestSuite
                 (test.Name.StartsWith("coords") && !test.Name.Contains("-dom-"))
                 || test.Name.StartsWith("shapes")
                 || test.Name.StartsWith("color")
-                || test.Name.StartsWith("paths");
+                || test.Name.StartsWith("paths")
+                || test.Name.StartsWith("text");
 
             tests = tests.Where(testFilter).ToList();
 
