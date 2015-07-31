@@ -1,6 +1,6 @@
 SvgWin2D
 
-Copyright (c) Microsoft Corporation. All rights reserved.
+Copyright (c) Damyan Pepper
 
 MIT License
 
