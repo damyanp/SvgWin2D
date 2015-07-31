@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -69,6 +70,8 @@ namespace TestSuite
         {
             Tests = tests;
             SelectedTest = Tests[0];
+
+            BackgroundDownloadTestData();
         }
 
         static async Task<XmlDocument> GetIndex()
@@ -108,6 +111,20 @@ namespace TestSuite
 
             return tests;
         }
+
+        void BackgroundDownloadTestData()
+        {
+            Task.Run(async () =>
+            {
+                foreach (var test in Tests)
+                {
+                    Debug.WriteLine(string.Format("prefetch: {0}", test.SvgUri));
+                    await CachedData.GetStorageFileAsync(new Uri(test.SvgUri));
+                    Debug.WriteLine(string.Format("prefetch: {0}", test.ReferencePngUri));
+                    await CachedData.GetStorageFileAsync(new Uri(test.ReferencePngUri));
+                }
+            });
+        }    
     }
 
     public class DesignTimeTestSuite : TestSuite
