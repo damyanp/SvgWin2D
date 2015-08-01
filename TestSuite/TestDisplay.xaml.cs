@@ -98,7 +98,11 @@ namespace TestSuite
             if (instance == null)
                 return;
 
-            instance.DataContext = await TestDisplayData.CreateAsync((SvgTest)e.NewValue);
+            var newTest = e.NewValue as SvgTest;
+            if (newTest == null)
+                return;
+
+            instance.DataContext = await TestDisplayData.CreateAsync(newTest);
             instance.Invalidate();
         }
 

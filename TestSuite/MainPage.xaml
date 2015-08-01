@@ -15,15 +15,20 @@
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <TextBlock Style="{ThemeResource HeaderTextBlockStyle}" Margin="{ThemeResource ContentDialogTitleMargin}" Grid.Row="0" Grid.ColumnSpan="2">
             SVG Test Suite
         </TextBlock>
+        
+        <ComboBox Grid.Column="0" Grid.Row="1" Margin="10" 
+                  ItemsSource="{Binding Chapters}" SelectedItem="{Binding SelectedChapter, Mode=TwoWay}" 
+                  HorizontalAlignment="Stretch"/>
 
         <ListView x:Name="testList"
-            Grid.Column="0" Grid.Row="1" Margin="10"
+            Grid.Column="0" Grid.Row="2" Margin="10"
             SelectionMode="Single" ItemsSource="{Binding Tests}" SelectedItem="{Binding SelectedTest, Mode=TwoWay}">
             <ListView.ItemTemplate>
                 <DataTemplate>
@@ -32,7 +37,8 @@
             </ListView.ItemTemplate>
         </ListView>
         
-        <local:TestDisplay Grid.Column="1" Grid.Row="1" Margin="10" SvgTest="{Binding SelectedItem, ElementName=testList}" />
+        <local:TestDisplay Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" Margin="10" 
+                           SvgTest="{Binding SelectedItem, ElementName=testList}" />
 
     </Grid>
 </Page>

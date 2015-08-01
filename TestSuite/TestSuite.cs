@@ -14,6 +14,14 @@ namespace TestSuite
     public class SvgTest
     {
         public string Name { get; private set; }
+        public string Chapter
+        {
+            get
+            {
+                return Name.Substring(0, Name.IndexOf('-'));
+            }
+        }
+
 
         public SvgTest(string name)
         {
@@ -52,7 +60,33 @@ namespace TestSuite
             return new TestSuite(ExtractTestsFromIndex(index));
         }
 
-        public List<SvgTest> Tests { get; private set; }
+        public List<SvgTest> Tests { get { return testsByChapter[selectedChapter]; } }
+        public ICollection<string> Chapters { get { return testsByChapter.Keys;  } }
+
+        public string SelectedChapter
+        {
+            get
+            {
+                return selectedChapter;
+            }
+            set
+            {
+                if (selectedChapter == value)
+                    return;
+
+                selectedChapter = value;
+                SelectedTest = Tests[0];
+
+                if (PropertyChanged != null)
+                {
+                    PropertyChanged(this, new PropertyChangedEventArgs("Tests"));
+                }
+            }
+        }
+
+        Dictionary<string, List<SvgTest>> testsByChapter;
+        string selectedChapter;
+
 
         SvgTest selectedTest;
         public SvgTest SelectedTest
@@ -68,7 +102,21 @@ namespace TestSuite
 
         protected TestSuite(List<SvgTest> tests)
         {
-            Tests = tests;
+            testsByChapter = new Dictionary<string, List<SvgTest>>();
+
+            foreach (var test in tests)
+            {
+                List<SvgTest> chapterTests;
+                if (!testsByChapter.TryGetValue(test.Chapter, out chapterTests))
+                {
+                    chapterTests = new List<SvgTest>();
+                    testsByChapter.Add(test.Chapter, chapterTests);
+                }
+
+                chapterTests.Add(test);
+            }
+
+            selectedChapter = Chapters.First();
             SelectedTest = Tests[0];
 
             BackgroundDownloadTestData();
@@ -95,19 +143,23 @@ namespace TestSuite
             {
                 var svgName = link.InnerText;
                 var newTest = new SvgTest(svgName);
+
+                // We don't expect anything in these chapters to work
+                if (newTest.Chapter == "animate" || newTest.Chapter=="interact" || newTest.Chapter=="script")
+                    continue;
+
+                // Filter out any tests that end with 'z' since we don't support
+                // compressed files yet.
+                // TODO; support svgz files
+                if (newTest.SvgUri.EndsWith("svgz"))
+                    continue;
+
+                // Filter out any DOM tests; we don't support the DOM
+                if (newTest.Name.Contains("-dom"))
+                    continue;
+
                 tests.Add(newTest);
             }
-
-            // Filter the tests
-
-            Func<SvgTest, bool> testFilter = test =>
-                (test.Name.StartsWith("coords") && !test.Name.Contains("-dom-"))
-                || test.Name.StartsWith("shapes")
-                || test.Name.StartsWith("color")
-                || test.Name.StartsWith("paths")
-                || test.Name.StartsWith("text");
-
-            tests = tests.Where(testFilter).ToList();
 
             return tests;
         }
