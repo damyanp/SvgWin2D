@@ -12,6 +12,7 @@ using namespace Windows::Data::Xml::Dom;
 using namespace Windows::Foundation;
 using namespace Windows::UI;
 
+using Windows::Foundation::Numerics::float2;
 using Windows::Foundation::Numerics::float3x2;
 
 struct viewBox
@@ -39,10 +40,10 @@ class element
 public:
     element(IXmlNode^ node);
 
-    void draw(CanvasDrawingSession^ ds, inherited_style* s);
+    void draw(CanvasDrawingSession^ ds, float2 destinationSize, inherited_style* s);
 
 protected:
-    virtual void draw_element(CanvasDrawingSession^ ds, inherited_style* s) = 0;
+    virtual void draw_element(CanvasDrawingSession^ ds, float2 destinationSize, inherited_style* s) = 0;
 };
 
 typedef std::vector<std::unique_ptr<element>> element_vector;
@@ -55,7 +56,7 @@ public:
     container_element(ICanvasResourceCreator^ resourceCreator, IXmlNode^ node);
 
 protected:
-    virtual void draw_element(CanvasDrawingSession^ ds, inherited_style* s) override;
+    virtual void draw_element(CanvasDrawingSession^ ds, float2 destinationSize, inherited_style* s) override;
 };
 
 
@@ -69,6 +70,9 @@ public:
     svg(ICanvasResourceCreator^ resourceCreator, IXmlNode^ node);
 
     ICanvasImage^ create_image(ICanvasResourceCreator^ resourceCreator, Size destinationSize);
+
+protected:
+    virtual void draw_element(CanvasDrawingSession^ ds, float2 destinationSize, inherited_style* s) override;
 };
 
 
@@ -91,7 +95,7 @@ public:
     circle(IXmlNode^ node);
 
 protected:
-    virtual void draw_element(CanvasDrawingSession^ ds, inherited_style* s) override;
+    virtual void draw_element(CanvasDrawingSession^ ds, float2 destinationSize, inherited_style* s) override;
 };
 
 
@@ -106,7 +110,7 @@ public:
     ellipse(IXmlNode^ node);
 
 protected:
-    virtual void draw_element(CanvasDrawingSession^ ds, inherited_style* s) override;
+    virtual void draw_element(CanvasDrawingSession^ ds, float2 destinationSize, inherited_style* s) override;
 };
 
 
@@ -123,7 +127,7 @@ public:
     rect(IXmlNode^ node);
 
 protected:
-    virtual void draw_element(CanvasDrawingSession^ ds, inherited_style* s) override;
+    virtual void draw_element(CanvasDrawingSession^ ds, float2 destinationSize, inherited_style* s) override;
 };
 
 
@@ -138,7 +142,7 @@ public:
     line(IXmlNode^ node);
 
 protected:
-    virtual void draw_element(CanvasDrawingSession^ ds, inherited_style* s) override;
+    virtual void draw_element(CanvasDrawingSession^ ds, float2 destinationSize, inherited_style* s) override;
 };
 
 
@@ -163,7 +167,7 @@ public:
     polyline(IXmlNode^ node);
 
 protected:
-    virtual void draw_element(CanvasDrawingSession^ ds, inherited_style* s) override;
+    virtual void draw_element(CanvasDrawingSession^ ds, float2 destinationSize, inherited_style* s) override;
 };
 
 
@@ -173,7 +177,7 @@ public:
     polygon(IXmlNode^ node);
 
 protected:
-    virtual void draw_element(CanvasDrawingSession^ ds, inherited_style* s) override;
+    virtual void draw_element(CanvasDrawingSession^ ds, float2 destinationSize, inherited_style* s) override;
 };
 
 
@@ -185,7 +189,7 @@ public:
     path(ICanvasResourceCreator^ resourceCreator, IXmlNode^ node);
 
 protected:
-    virtual void draw_element(CanvasDrawingSession^ ds, inherited_style* s) override;
+    virtual void draw_element(CanvasDrawingSession^ ds, float2 destinationSize, inherited_style* s) override;
 };
 
 
@@ -199,5 +203,5 @@ public:
     text(IXmlNode^ node);
 
 protected:
-    virtual void draw_element(CanvasDrawingSession^ ds, inherited_style* s) override;
+    virtual void draw_element(CanvasDrawingSession^ ds, float2 destinationSize, inherited_style* s) override;
 };

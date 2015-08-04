@@ -9,7 +9,7 @@ using namespace Windows::Foundation;
 using namespace Windows::UI;
 
 
-void element::draw(CanvasDrawingSession^ ds, inherited_style* s)
+void element::draw(CanvasDrawingSession^ ds, float2 destinationSize, inherited_style* s)
 {
     s->push();
     s->current()->set(
@@ -24,18 +24,18 @@ void element::draw(CanvasDrawingSession^ ds, inherited_style* s)
     if (transform_)
         ds->Transform = *transform_ * ds->Transform;
 
-    draw_element(ds, s);
+    draw_element(ds, destinationSize, s);
 
     ds->Transform = oldTransform;
     s->pop();
 }
 
 
-void container_element::draw_element(CanvasDrawingSession^ ds, inherited_style* s)
+void container_element::draw_element(CanvasDrawingSession^ ds, float2 destinationSize, inherited_style* s)
 {
     for (auto const& child : elements_)
     {
-        child->draw(ds, s);
+        child->draw(ds, destinationSize, s);
     }
 }
 
@@ -62,15 +62,14 @@ ICanvasImage^ svg::create_image(ICanvasResourceCreator^ resourceCreator, Size de
     auto ds = content->CreateDrawingSession();
     ds->Clear(Colors::Transparent);
 
-    draw_element(ds, std::make_unique<inherited_style>().get());
+    auto width = calculate_width_or_height(width_, destinationSize.Width);
+    auto height = calculate_width_or_height(height_, destinationSize.Height);
+
+    draw_element(ds, float2{ width, height}, std::make_unique<inherited_style>().get());
 
     delete ds;
 
     auto crop = ref new Effects::CropEffect();
-
-    auto width = calculate_width_or_height(width_, destinationSize.Width);
-    auto height = calculate_width_or_height(height_, destinationSize.Height);
-
     crop->SourceRectangle = Rect{ 0, 0, width, height };
     crop->Source = content;
 
@@ -78,7 +77,27 @@ ICanvasImage^ svg::create_image(ICanvasResourceCreator^ resourceCreator, Size de
 }
 
 
-void circle::draw_element(CanvasDrawingSession^ ds, inherited_style* s)
+void svg::draw_element(CanvasDrawingSession^ ds, float2 destinationSize, inherited_style* s)
+{
+    auto originalTransform = ds->Transform;
+
+    if (viewBox_)
+    {
+        using namespace Windows::Foundation::Numerics;
+        float scaleX = destinationSize.x / viewBox_->Width;
+        float scaleY = destinationSize.y / viewBox_->Height;
+        ds->Transform = make_float3x2_translation(-viewBox_->X, -viewBox_->Y)
+            * make_float3x2_scale(scaleX, scaleY);
+            
+    }
+
+    container_element::draw_element(ds, destinationSize, s);
+
+    ds->Transform = originalTransform;
+}
+
+
+void circle::draw_element(CanvasDrawingSession^ ds, float2 destinationSize, inherited_style* s)
 {
     auto fb = s->current()->fillBrush(ds);
     if (fb)
@@ -90,7 +109,7 @@ void circle::draw_element(CanvasDrawingSession^ ds, inherited_style* s)
 }
 
 
-void ellipse::draw_element(CanvasDrawingSession^ ds, inherited_style* s)
+void ellipse::draw_element(CanvasDrawingSession^ ds, float2 destinationSize, inherited_style* s)
 {
     auto fb = s->current()->fillBrush(ds);
     if (fb)
@@ -102,7 +121,7 @@ void ellipse::draw_element(CanvasDrawingSession^ ds, inherited_style* s)
 }
 
 
-void rect::draw_element(CanvasDrawingSession^ ds, inherited_style* s)
+void rect::draw_element(CanvasDrawingSession^ ds, float2 destinationSize, inherited_style* s)
 {
     Rect rect{ x_.Number, y_.Number, width_.Number, height_.Number };
 
@@ -136,7 +155,7 @@ void rect::draw_element(CanvasDrawingSession^ ds, inherited_style* s)
 }
 
 
-void line::draw_element(CanvasDrawingSession^ ds, inherited_style* s)
+void line::draw_element(CanvasDrawingSession^ ds, float2 destinationSize, inherited_style* s)
 {
     auto sb = s->current()->strokeBrush(ds);
     if (sb)
@@ -188,19 +207,19 @@ void polything::draw_polything(CanvasDrawingSession^ ds, inherited_style* s, Can
 }
 
 
-void polyline::draw_element(CanvasDrawingSession^ ds, inherited_style* s)
+void polyline::draw_element(CanvasDrawingSession^ ds, float2 destinationSize, inherited_style* s)
 {
     draw_polything(ds, s, CanvasFigureLoop::Open);
 }
 
 
-void polygon::draw_element(CanvasDrawingSession^ ds, inherited_style* s)
+void polygon::draw_element(CanvasDrawingSession^ ds, float2 destinationSize, inherited_style* s)
 {
     draw_polything(ds, s, CanvasFigureLoop::Closed);
 }
 
 
-void path::draw_element(CanvasDrawingSession^ ds, inherited_style* s)
+void path::draw_element(CanvasDrawingSession^ ds, float2 destinationSize, inherited_style* s)
 {
     auto fb = s->current()->fillBrush(ds);
     if (fb)
@@ -219,7 +238,7 @@ void path::draw_element(CanvasDrawingSession^ ds, inherited_style* s)
 }
 
 
-void text::draw_element(CanvasDrawingSession^ ds, inherited_style* s)
+void text::draw_element(CanvasDrawingSession^ ds, float2 destinationSize, inherited_style* s)
 {
     auto fb = s->current()->fillBrush(ds);
     if (fb)

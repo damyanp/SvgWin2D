@@ -57,7 +57,7 @@ std::unique_ptr<viewBox> parse_viewBox(Platform::String^ viewBoxString)
 
 std::unique_ptr<viewBox> parse_viewBox(IXmlNode^ element)
 {
-    auto attribute = element->Attributes->GetNamedItemNS(SVG_NS, L"viewBox");
+    auto attribute = element->Attributes->GetNamedItem(L"viewBox");
     if (!attribute)
         return nullptr;
 
