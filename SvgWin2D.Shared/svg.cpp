@@ -60,7 +60,6 @@ ICanvasImage^ svg::create_image(ICanvasResourceCreator^ resourceCreator, Size de
 {
     auto content = ref new CanvasCommandList(resourceCreator);
     auto ds = content->CreateDrawingSession();
-    ds->Clear(Colors::Transparent);
 
     auto width = calculate_width_or_height(width_, destinationSize.Width);
     auto height = calculate_width_or_height(height_, destinationSize.Height);
@@ -69,11 +68,7 @@ ICanvasImage^ svg::create_image(ICanvasResourceCreator^ resourceCreator, Size de
 
     delete ds;
 
-    auto crop = ref new Effects::CropEffect();
-    crop->SourceRectangle = Rect{ 0, 0, width, height };
-    crop->Source = content;
-
-    return crop;
+    return content;
 }
 
 
