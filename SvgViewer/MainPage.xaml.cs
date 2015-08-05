@@ -140,7 +140,8 @@ namespace SvgViewer
                 else
                 {
                     args.DrawingSession.DrawImage(
-                        svgImage);
+                        svgImage,
+                        -(float)bounds.Left, -(float)bounds.Top);
                 }
             }
         }
