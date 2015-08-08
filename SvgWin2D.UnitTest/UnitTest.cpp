@@ -392,5 +392,32 @@ public:
         CheckCommaSeparatedList(L"\"a\",\"b\",c,\"d\"   ", { L"a", L"b", L"c", L"d" });
         CheckCommaSeparatedList(L"\"a b\",c", { L"a b", L"c" });
     }
+
+#pragma endregion
+#pragma region(preserveAspectRatio)
+
+    TEST_METHOD(ParsePreserveAspectRatio)
+    {
+#define CHECK(STR, DEFER, ALIGN, SLICE) CheckPreserveAspectRatio(STR, DEFER, preserveAspectRatio::align::ALIGN, SLICE)
+        CHECK(nullptr, false, xMidYMid, false);
+        CHECK(L"", false, xMidYMid, false);
+        CHECK(L"none", false, none, false);
+        CHECK(L"xMinYMin", false, xMinYMin, false);
+        CHECK(L"xMidYMin meet", false, xMidYMin, false);
+        CHECK(L"xMaxYMin slice", false, xMaxYMin, true);
+        CHECK(L"defer xMinYMid", true, xMinYMid, false);
+        CHECK(L"defer xMaxYMid slice", true, xMaxYMid, true);
+#undef CHECK
+    }
+
+    void CheckPreserveAspectRatio(wchar_t const* str, bool expectedDefer, preserveAspectRatio::align expectedAlign, bool expectedSlice)
+    {
+        preserveAspectRatio value(ref new Platform::String(str));
+
+        Assert::AreEqual(expectedDefer, value.Defer, str);
+        Assert::AreEqual((int)expectedAlign, (int)value.Align, str);
+        Assert::AreEqual(expectedSlice, value.Slice, str);
+    }
+
 #pragma endregion
 };

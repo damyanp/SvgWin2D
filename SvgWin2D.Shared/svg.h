@@ -27,7 +27,7 @@ struct viewBox
     {}
 };
 
-class preserveAspectRatio
+struct preserveAspectRatio
 {
     enum class align { none, xMinYMin, xMidYMin, xMaxYMin, xMinYMid, xMidYMid, xMaxYMid, xMinYMax, xMidYMax, xMaxYMax };
 
@@ -35,7 +35,6 @@ class preserveAspectRatio
     align Align;
     bool Slice;
 
-public:
     preserveAspectRatio(Platform::String^ attributeString);
 };
 
