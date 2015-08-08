@@ -27,6 +27,18 @@ struct viewBox
     {}
 };
 
+class preserveAspectRatio
+{
+    enum class align { none, xMinYMin, xMidYMin, xMaxYMin, xMinYMid, xMidYMid, xMaxYMid, xMinYMax, xMidYMax, xMaxYMax };
+
+    bool Defer;
+    align Align;
+    bool Slice;
+
+public:
+    preserveAspectRatio(Platform::String^ attributeString);
+};
+
 class element
 {
     std::unique_ptr<paint> color_;
@@ -63,6 +75,7 @@ protected:
 class svg : public container_element
 {
     std::unique_ptr<viewBox> viewBox_;
+    preserveAspectRatio preserveAspectRatio_;
     length width_;
     length height_;
 

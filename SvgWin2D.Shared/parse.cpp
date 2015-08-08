@@ -69,6 +69,16 @@ std::unique_ptr<viewBox> parse_viewBox(IXmlNode^ element)
 }
 
 
+preserveAspectRatio::preserveAspectRatio(Platform::String^ attributeString)
+    : Defer(false)
+    , Align(align::xMidYMid)
+    , Slice(false)
+{
+    if (!attributeString)
+        return;
+}
+
+
 Platform::String^ get_attribute(IXmlNode^ element, Platform::String^ name)
 {
     auto attribute = element->Attributes->GetNamedItem(name);
@@ -436,6 +446,7 @@ container_element::container_element(ICanvasResourceCreator^ resourceCreator, IX
 svg::svg(ICanvasResourceCreator^ resourceCreator, IXmlNode^ node)
     : container_element(resourceCreator, node)
     , viewBox_(parse_viewBox(node))
+    , preserveAspectRatio_(get_attribute(node, L"preserveAspectRatio"))
     , width_(parse_width_or_height(node, L"width"))
     , height_(parse_width_or_height(node, L"height"))
 {
