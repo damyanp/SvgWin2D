@@ -7,6 +7,12 @@
 
 using namespace Windows::Data::Xml::Dom;
 
+#define CONCAT2(X, Y) X##Y
+#define CONCAT(X, Y) CONCAT2(X, Y)
+#define STRINGIFY2(X) #X
+#define STRINGIFY(X) STRINGIFY2(X)
+#define WIDEN(X) CONCAT(L, STRINGIFY(X))
+
 Platform::String^ SVG_NS = L"http://www.w3.org/2000/svg";
 Platform::String^ XMLNS_SVG = L"xmlns:svg='http://www.w3.org/2000/svg'";
 
@@ -76,6 +82,37 @@ preserveAspectRatio::preserveAspectRatio(Platform::String^ attributeString)
 {
     if (!attributeString)
         return;
+
+    static std::wregex preserveAspectRatioRegex(
+        L"(defer)?\\s*([a-zA-Z]+)\\s*([a-z]*)");
+
+    std::wcmatch match;
+    if (!std::regex_match(attributeString->Begin(), attributeString->End(), match, preserveAspectRatioRegex))
+        return;
+
+    if (match[1].matched)
+        Defer = true;
+
+    auto align = match[2].str();
+
+    // none, xMinYMin, xMidYMin, xMaxYMin, xMinYMid, xMidYMid, xMaxYMid, xMinYMax, xMidYMax, xMaxYMax
+
+#define HANDLE(a) if (align == WIDEN(a)) Align = align::a
+    HANDLE(none);
+    else HANDLE(xMinYMin);
+    else HANDLE(xMidYMin);
+    else HANDLE(xMaxYMin);
+    else HANDLE(xMinYMid);
+    else HANDLE(xMidYMid);
+    else HANDLE(xMaxYMid);
+    else HANDLE(xMinYMax);
+    else HANDLE(xMidYMax);
+    else HANDLE(xMaxYMax);
+    // TODO: what if we don't recognize it?
+#undef HANDLE
+
+    if (match[3].str() == L"slice")
+        Slice = true;
 }
 
 
