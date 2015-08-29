@@ -72,18 +72,23 @@ ICanvasImage^ svg::create_image(ICanvasResourceCreator^ resourceCreator, Size de
 }
 
 
+float3x2 make_transform(float2 destinationSize, viewBox const& viewBox, preserveAspectRatio aspectRatio)
+{
+    using namespace Windows::Foundation::Numerics;
+    float scaleX = destinationSize.x / viewBox.Width;
+    float scaleY = destinationSize.y / viewBox.Height;
+    return make_float3x2_translation(-viewBox.X, -viewBox.Y)
+        * make_float3x2_scale(scaleX, scaleY);
+}
+
+
 void svg::draw_element(CanvasDrawingSession^ ds, float2 destinationSize, inherited_style* s)
 {
     auto originalTransform = ds->Transform;
 
     if (viewBox_)
     {
-        using namespace Windows::Foundation::Numerics;
-        float scaleX = destinationSize.x / viewBox_->Width;
-        float scaleY = destinationSize.y / viewBox_->Height;
-        ds->Transform = make_float3x2_translation(-viewBox_->X, -viewBox_->Y)
-            * make_float3x2_scale(scaleX, scaleY);
-            
+        ds->Transform = make_transform(destinationSize, *viewBox_.get(), preserveAspectRatio_);
     }
 
     container_element::draw_element(ds, destinationSize, s);
